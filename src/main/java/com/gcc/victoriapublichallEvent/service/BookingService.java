@@ -95,6 +95,13 @@ public class BookingService {
                 reg.setTotalAmount(totalAmount);
             }
 
+            if (data.get("no_of_people") != null) {
+                try {
+                    reg.setNoOfPeople(Integer.parseInt(data.get("no_of_people").toString()));
+                } catch (Exception e) {
+                }
+            }
+
             // Map Razorpay Order ID to ref_id column
             String refId = null;
             if (data.get("order_id") != null)
@@ -126,22 +133,15 @@ public class BookingService {
                         reg.setEventId(slot.getEventId());
 
                         // Capacity Update (Moved here as we have the slot)
-                        if (reg.getNoOfPeople() != null && slot.getMaxCapacity() != null) {
-                            int currentCapacity = slot.getMaxCapacity();
+                        if (reg.getNoOfPeople() != null) {
+                            int currentCapacity = (slot.getCurrentCapacity() != null) ? slot.getCurrentCapacity() : 0;
                             int bookedCount = reg.getNoOfPeople();
-                            slot.setMaxCapacity(currentCapacity - bookedCount);
+                            slot.setCurrentCapacity(currentCapacity + bookedCount);
                             eventTimeSlotRepository.save(slot);
                         }
                     }
                 } catch (Exception e) {
                     System.err.println("Error processing time slot: " + e.getMessage());
-                }
-            }
-
-            if (data.get("no_of_people") != null) {
-                try {
-                    reg.setNoOfPeople(Integer.parseInt(data.get("no_of_people").toString()));
-                } catch (Exception e) {
                 }
             }
 

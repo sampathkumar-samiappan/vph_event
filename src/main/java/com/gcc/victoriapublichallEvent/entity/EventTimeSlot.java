@@ -41,5 +41,13 @@ public class EventTimeSlot {
     @Column(name = "cdate")
     private LocalDateTime cdate = LocalDateTime.now();
 
+    @Column(name = "current_capacity")
+    private Integer currentCapacity = 0;
+
     // Helper to track available seats if needed, or query dynamically
+    public Integer getAvailableCapacity() {
+        int max = (maxCapacity != null) ? maxCapacity : 0;
+        int current = (currentCapacity != null) ? currentCapacity : 0;
+        return max - current;
+    }
 }

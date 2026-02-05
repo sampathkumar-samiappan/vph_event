@@ -981,11 +981,11 @@
                     <div class="time-slots-container">
                         <div class="time-slot" th:each="slot, iterStat : ${timeSlots}"
                             th:data-time="${slot.eventTiming}" th:data-id="${slot.id}"
-                            th:data-capacity="${slot.maxCapacity}"
-                            th:classappend="${slot.maxCapacity <= 0} ? 'disabled' : ''">
+                            th:data-capacity="${slot.availableCapacity}"
+                            th:classappend="${slot.availableCapacity <= 0} ? 'disabled' : ''">
                             <span class="slot-time" th:text="${slot.eventTiming}">09:00 AM - 10:00 AM</span>
                             <span class="slot-seats"
-                                th:text="${slot.maxCapacity > 0} ? ${slot.maxCapacity} + ' Seats Available' : 'Full'">20
+                                th:text="${slot.availableCapacity > 0} ? ${slot.availableCapacity} + ' Seats Available' : 'Full'">20
                                 Seats
                                 Available</span>
                         </div>
