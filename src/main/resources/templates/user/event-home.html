@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/user-head :: head}"></head>
+
+<!-- Add FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* common css start (copied from registration.html) */
+
+    :root {
+        --bg: #f6f3ef;
+        --accent: #12363b;
+        --dark: #2f1f1b;
+        --muted: #7b7773;
+        --panel-w: 660px;
+        --radius: 14px;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+    }
+
+    html,
+    body {
+        height: 100%
+    }
+
+
+    body {
+        font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+
+        background:
+            linear-gradient(rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.82)),
+            url('/images/vph-background_v1.jpg') top center / cover no-repeat,
+            url('/images/vph-background_v1.jpg') bottom center / cover no-repeat;
+
+        min-height: 100vh;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        -webkit-font-smoothing: antialiased;
+
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 18px 24px;
+        color: #3B1E14;
+    }
+
+    /* common css end */
+
+    /* Header CSS (adapted from registration.html) */
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+        position: relative;
+        z-index: 1300;
+        margin-bottom: 20px;
+    }
+
+    .leftbar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        border-radius: 50%;
+    }
+
+    nav.primary {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+    }
+
+    nav.primary a {
+        font-family: "Playfair Display", serif !important;
+        font-weight: 400 !important;
+        font-style: normal !important;
+        font-size: 15px !important;
+        line-height: 100% !important;
+        color: #3C1E12;
+        text-decoration: none;
+        padding: 6px 8px;
+        border-radius: 6px;
+        transition: background 0.2s ease;
+    }
+
+    nav.primary a:hover {
+        background: rgba(0, 0, 0, 0.06);
+    }
+
+    .rightbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Hamburger Menu */
+    .hamburger {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        background: transparent;
+        cursor: pointer;
+        padding: 8px;
+    }
+
+    .hamburger .bar {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: var(--dark);
+        margin: 3px 0;
+        transition: transform .2s, opacity .2s;
+    }
+
+    /* Page Content CSS */
+    .page {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+
+    .event-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .event-header h1 {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 48px;
+        color: #3B1E14;
+        margin-bottom: 10px;
+    }
+
+    .event-header h2 {
+        font-family: "Inter", sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #000;
+    }
+
+    /* Tabs */
+    .tabs {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 40px;
+        width: 100%;
+        max-width: 900px;
+        align-self: center;
+    }
+
+    .tab {
+        font-family: "Inter", sans-serif;
+        font-size: 20px;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        padding-bottom: 8px;
+        position: relative;
+    }
+
+    .tab.active {
+        font-weight: 700;
+        color: #000;
+        border-bottom: 3px solid #3B1E14;
+    }
+
+    /* Event Card */
+    .event-card {
+        background: white;
+        border-radius: 24px;
+        display: flex;
+        overflow: hidden;
+        margin-bottom: 30px;
+        width: 100%;
+        max-width: 900px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        position: relative;
+        align-self: center;
+    }
+
+    .event-img-container {
+        width: 35%;
+        min-width: 300px;
+    }
+
+    .event-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .event-details {
+        padding: 30px 40px;
+        flex: 1;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: #EEDFA6;
+        /* Beige/Yellow color from image */
+        color: #3B1E14;
+        padding: 8px 20px;
+        font-weight: 800;
+        font-size: 14px;
+        border-bottom-left-radius: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .event-title {
+        font-family: "Inter", sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 12px;
+        color: #000;
+    }
+
+    .event-desc {
+        font-family: "Inter", sans-serif;
+        font-size: 15px;
+        color: #444;
+        margin-bottom: 20px;
+        line-height: 1.6;
+        max-width: 90%;
+    }
+
+    .event-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 25px;
+        font-weight: 700;
+        font-size: 16px;
+        color: #000;
+    }
+
+    .event-meta i {
+        font-size: 20px;
+        color: #3B1E14;
+    }
+
+    .price {
+        font-size: 18px;
+        font-weight: 800;
+        margin-left: 10px;
+        color: #000;
+    }
+
+    .ticket-btn {
+        background: #12363b;
+        color: white;
+        padding: 14px 30px;
+        border-radius: 8px;
+        border: none;
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+        width: fit-content;
+    }
+
+    .ticket-btn:hover {
+        background: #0e2a2e;
+        box-shadow: 0 4px 12px rgba(18, 54, 59, 0.2);
+    }
+
+    /* Mobile Nav */
+    .mobile-nav {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        top: 68px;
+        max-width: 420px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 12px;
+        padding: 14px;
+        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.16);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        z-index: 1400;
+        transform: translateY(-8px) scale(.995);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .22s ease, transform .22s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-nav.open {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
+    .mobile-nav a {
+        display: block;
+        padding: 10px 12px;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-family: "Playfair Display", serif;
+    }
+
+    .mobile-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.22);
+        z-index: 1350;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .22s ease;
+    }
+
+    .mobile-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+
+    /* Responsive CSS */
+    @media (max-width: 900px) {
+        nav.primary {
+            display: none !important;
+        }
+
+        .hamburger {
+            display: flex !important;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+        }
+
+        .tabs {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .event-card {
+            flex-direction: column;
+            max-width: 450px;
+        }
+
+        .event-img-container {
+            width: 100%;
+            height: 220px;
+            min-width: auto;
+        }
+
+        .event-details {
+            padding: 24px;
+        }
+
+        .event-header h1 {
+            font-size: 32px;
+        }
+
+        .event-header h2 {
+            font-size: 18px;
+        }
+    }
+
+    @media (max-width: 520px) {
+        body {
+            background-size: 100em;
+            /* consistent with reg page logic */
+            background-attachment: scroll;
+        }
+    }
+
+
+    .event-desc {
+        white-space: pre-line;
+    }
+</style>
+
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+        <header class="topbar" role="banner">
+            <div class="leftbar">
+                <div class="nav-left">
+                    <img src="https://gccservices.in/victoriapublichall/images/VPH-logo_main-EN%201.png" alt="VPH logo"
+                        class="logo">
+                </div>
+
+                <nav class="primary" aria-label="Primary navigation">
+                    <a href="eventhome">Home</a>
+                    <a href="bookingdetails">Booking Details</a>
+                    <!-- <a href="#">About VPH</a>
+                    <a href="#">Visit</a>
+                    <a href="#">Contact Us</a> -->
+                </nav>
+            </div>
+
+            <div class="rightbar">
+                <!-- Mobile Menu Button -->
+                <button id="hambtn" class="hamburger" aria-label="Open menu" aria-expanded="false"
+                    aria-controls="mobileNav">
+                    <span class="bar bar1" aria-hidden="true"></span>
+                    <span class="bar bar2" aria-hidden="true"></span>
+                    <span class="bar bar3" aria-hidden="true"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
+        <nav id="mobileNav" class="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+            <a href="eventhome">Home</a>
+            <a href="bookingdetails">Booking Details</a>
+            <!-- <a href="#">About VPH</a>
+            <a href="/victoriapublichall/visit">Visit</a>
+            <a href="#">Contact Us</a> -->
+        </nav>
+
+
+        <!-- Main Content -->
+        <main class="page">
+            <div class="event-header">
+                <h1>Victoria Public Hall</h1>
+                <h2>EVENTS</h2>
+            </div>
+
+            <div class="tabs" style="display: none;">
+                <div class="tab active">This week</div>
+                <div class="tab">This Month</div>
+                <div class="tab">Next Month</div>
+            </div>
+
+            <!-- Dynamic Event Cards -->
+            <div class="event-card" th:each="ev : ${events}">
+                <div class="event-img-container">
+                    <img th:src="@{${ev.eventImageUrl}}" class="event-img" alt="Event Image"
+                        onerror="this.src='/images/image_townhall.jpg'">
+                </div>
+                <div class="event-details">
+                    <div class="badge" th:if="${ev.eventTypeMaster != null}" th:text="${ev.eventTypeMaster.eventType}">
+                        Event Type</div>
+                    <h3 class="event-title" th:text="${ev.eventName}">Event Name</h3>
+                    <p class="event-desc" th:text="${ev.eventDiscription}">Short description...</p>
+                    </p>
+
+                    <div class="event-meta">
+                        <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                        <!-- Display only date part (first 10 chars) if string, or format if date object. 
+                             Safest approach for mixed/unknown types in Thymeleaf is often string manipulation if it comes as "YYYY-MM-DD HH:MM:SS" -->
+                        <span
+                            th:text="${#strings.substring(ev.eventDate, 8, 10) + '-' + #strings.substring(ev.eventDate, 5, 7) + '-' + #strings.substring(ev.eventDate, 0, 4)}">Date
+                            | Time</span>
+                        <span class="price" th:if="${ev.amount > 0}" th:text="'₹ ' + ${ev.amount} + '/-'">₹ 500/-</span>
+                    </div>
+                    <div>
+                        <!-- Link to booking with eventId -->
+                        <a th:href="@{/victoriapublichallevent/eventbooking(eventId=${ev.eventId})}"
+                            class="ticket-btn">Get Tickets</a>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${events == null or events.empty}" class="event-header">
+                <h2>No Active Events</h2>
+            </div>
+
+
+        </main>
+
+    </div>
+
+    <!-- Scripts -->
+    <script th:replace="~{fragments/user-script :: script}"></script>
+
+    <script>
+        // Tab switching logic (basic visual only)
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Mobile Menu Logic (Copied/Adapted from references)
+        (function () {
+            const hambtn = document.getElementById('hambtn');
+            const mobileNav = document.getElementById('mobileNav');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            if (hambtn && mobileNav && mobileOverlay) {
+                function openMenu() {
+                    hambtn.setAttribute('aria-expanded', 'true');
+                    mobileNav.classList.add('open'); mobileNav.setAttribute('aria-hidden', 'false');
+                    mobileOverlay.classList.add('show'); mobileOverlay.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                }
+                function closeMenu() {
+                    hambtn.setAttribute('aria-expanded', 'false');
+                    mobileNav.classList.remove('open'); mobileNav.setAttribute('aria-hidden', 'true');
+                    mobileOverlay.classList.remove('show'); mobileOverlay.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+
+                hambtn.addEventListener('click', () => {
+                    const isOpen = hambtn.getAttribute('aria-expanded') === 'true';
+                    if (isOpen) closeMenu(); else openMenu();
+                });
+
+                mobileOverlay.addEventListener('click', closeMenu);
+
+                mobileNav.querySelectorAll('a').forEach(a => {
+                    a.addEventListener('click', closeMenu);
+                });
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

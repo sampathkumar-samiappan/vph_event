@@ -1,0 +1,157 @@
+<html>
+<header>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <script type="text/javascript">
+
+        const paymentStart = (id, amount, pax, timeSlotId) => {
+            console.log("payment started" + id);
+
+            $.ajax({
+                url: '/victoriapublichallevent/bookingapi/create_order?ref_id=' + id,
+                data: JSON.stringify({ amount: amount, info: 'order_request', id: id }),
+                contentType: 'application/json',
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+
+                    let amt = response.amount;
+                    let refid = id;
+                    console.log("refid")
+                    console.log("FIRST:==>");
+                    console.log(response);
+                    if (response.status == "created") {
+
+
+                        let options = {
+                            "key": "[[${keyId}]]",
+                            /* "key": "rzp_test_tDkHFEqWXmuEi8", */
+                            // "key": "rzp_live_ySI5Ns54Y7qOcJ",
+                            "amount": response.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                            "currency": response.currency,
+                            "name": "Greater Chennai Corporation",
+                            "description": "Victoria public Hall Booking Transaction",
+                            "image": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Chennai_Corporation_Emblem.png",
+                            "order_id": response.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                            "handler": function (response) {
+
+                                console.log("second==>\n");
+                                console.log(response);
+                                console.log(response.razorpay_payment_id);
+                                console.log(response.razorpay_order_id);
+                                console.log(response.razorpay_signature);
+                                console.log("payment success");
+                                //alert("congrates !payment successfull")
+                                updatePaymentInServer(response.razorpay_payment_id, response.razorpay_order_id, refid, amt, pax, timeSlotId);
+                            },
+
+                            modal: {
+                                ondismiss: function () {
+                                    console.log("Razorpay popup closed by user");
+
+
+                                    const loader = document.getElementById("pageLoader");
+                                    if (loader) {
+                                        loader.style.display = "block";
+                                    }
+
+                                    //  small delay so loader is visible
+                                    setTimeout(() => {
+                                        //  REDIRECT BACK TO BOOKING PAGE
+                                        window.location.replace("eventhome");
+                                    }, 300);
+                                }
+                            },
+                            "prefill": {
+                                "name": "",
+                                "email": "",
+                                "contact": ""
+                            },
+                            "notes": {
+                                "address": "Greater Chennai Corporation."
+                            },
+                            "theme": {
+                                "color": "#3399cc"
+                            }
+                        };
+                        var rzp1 = new Razorpay(options);
+                        rzp1.on('payment.failed', function (response) {
+                            console.log(response.error.code);
+                            console.log(response.error.description);
+                            console.log(response.error.source);
+                            console.log(response.error.step);
+                            console.log(response.error.reason);
+                            console.log(response.error.metadata.order_id);
+                            console.log(response.error.metadata.payment_id);
+                            alert("Payment Failed");
+                        });
+                        rzp1.open();
+
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                    alert("error");
+                }
+            })
+        };
+
+        function updatePaymentInServer(payment_id, order_id, refid, amt, pax, timeSlotId) {
+            console.log("amt...", amt);
+
+            // Get mobile number from the verified display element logic in event-booking.html
+            // Or fallback to input if not cleared
+            var mobile_no = "";
+            const verifiedDisplay = document.getElementById("verifiedContactDisplay");
+            const contactInput = document.getElementById("contactInput");
+
+            if (verifiedDisplay && verifiedDisplay.innerText.trim() !== "") {
+                mobile_no = verifiedDisplay.innerText.trim();
+            } else if (contactInput) {
+                mobile_no = contactInput.value.trim();
+            }
+
+            $.ajax({
+                url: '/victoriapublichallevent/bookingapi/Confirm',
+                data: JSON.stringify({
+                    payment_id: payment_id,
+                    order_id: order_id,
+                    id: refid,
+                    amt: amt,
+                    mobile_no: mobile_no,
+                    no_of_people: pax,
+                    time_slot_id: timeSlotId
+                }),
+                contentType: 'application/json',
+                type: 'POST',
+                dataType: 'text',
+                success: function (response) {
+                    console.log("update payment in server");
+                    console.log("order_id...", order_id);
+
+                    // Redirect to acknowledgement page
+                    window.location.href = "/victoriapublichallevent/bookingQRCode?orderid=" + order_id;
+
+                    /* 
+                    // Show Success Page in event-booking.html
+                    if (typeof showBookingSuccess === 'function') {
+                        showBookingSuccess(order_id, amt, refid);
+                    } else {
+                        // Fallback if function not found
+                        alert("Payment Successful! Order ID: " + order_id);
+                        window.location.reload();
+                    }
+                    */
+                },
+                error: function (error) {
+                    swal("Failed`!", "Failed to confirm your booking. If payment was debited, it will be credited back, or you can check with your bank.", "error");
+                }
+            });
+        };
+    </script>
+</header>
+
+</html>

@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/user-head :: head}">
+</head>
+<header th:replace="~{user/razor-pay :: header}"></header>
+
+<!-- Add FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+    /* common css start (copied/adapted from event-home.html) */
+    :root {
+        --bg: #f6f3ef;
+        --accent: #12363b;
+        --dark: #2f1f1b;
+        --muted: #7b7773;
+        --radius: 14px;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+    }
+
+    body {
+        font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+        background:
+            linear-gradient(rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.82)),
+            url('/images/vph-background_v1.jpg') top center / cover no-repeat,
+            url('/images/vph-background_v1.jpg') bottom center / cover no-repeat;
+        min-height: 100vh;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 18px 24px;
+        color: #3B1E14;
+    }
+
+    /* Header CSS */
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+        position: relative;
+        z-index: 1300;
+        margin-bottom: 20px;
+    }
+
+    .leftbar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        border-radius: 50%;
+    }
+
+    nav.primary {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+    }
+
+    nav.primary a {
+        font-family: "Playfair Display", serif !important;
+        font-weight: 400 !important;
+        font-style: normal !important;
+        font-size: 15px !important;
+        line-height: 100% !important;
+        color: #3C1E12;
+        text-decoration: none;
+        padding: 6px 8px;
+        border-radius: 6px;
+        transition: background 0.2s ease;
+    }
+
+    nav.primary a:hover {
+        background: rgba(0, 0, 0, 0.06);
+    }
+
+    .rightbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .hamburger {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        background: transparent;
+        cursor: pointer;
+        padding: 8px;
+    }
+
+    .hamburger .bar {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: var(--dark);
+        margin: 3px 0;
+        transition: transform .2s, opacity .2s;
+    }
+
+    /* Main Content */
+    .page {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /* Centered content */
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+
+    .event-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .event-header h1 {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 48px;
+        color: #3B1E14;
+        margin-bottom: 10px;
+    }
+
+    .event-header h2 {
+        font-family: "Inter", sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #000;
+    }
+
+    /* Booking Specific Header */
+    .booking-nav-row {
+        width: 100%;
+        max-width: 900px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        align-self: center;
+    }
+
+    .back-btn {
+        width: 60px;
+        height: 40px;
+        background: #1e1e1e;
+        /* Dark black/grey */
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .back-btn:hover {
+        background: #000;
+    }
+
+    .page-title {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 24px;
+        color: #333;
+    }
+
+    /* Standard Event Card (Simplified for details page) */
+    .event-card {
+        background: white;
+        border-radius: 24px;
+        display: flex;
+        overflow: hidden;
+        margin-bottom: 30px;
+        width: 100%;
+        max-width: 900px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        position: relative;
+        align-self: center;
+    }
+
+    .event-img-container {
+        width: 35%;
+        min-width: 300px;
+    }
+
+    .event-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .event-details {
+        padding: 30px 40px;
+        flex: 1;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: #EEDFA6;
+        color: #3B1E14;
+        padding: 8px 20px;
+        font-weight: 800;
+        font-size: 14px;
+        border-bottom-left-radius: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .event-title {
+        font-family: "Inter", sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 12px;
+        color: #000;
+    }
+
+    .event-desc {
+        font-family: "Inter", sans-serif;
+        font-size: 15px;
+        color: #444;
+        margin-bottom: 20px;
+        line-height: 1.6;
+        max-width: 90%;
+    }
+
+    .event-meta {
+        font-weight: 700;
+        font-size: 16px;
+        color: #000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .event-meta i {
+        font-size: 20px;
+        color: #3B1E14;
+    }
+
+    /* Booking Form Section */
+    .booking-form-area {
+        width: 100%;
+        max-width: 900px;
+        align-self: center;
+        margin-top: 20px;
+    }
+
+    .form-label {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+        color: #3B1E14;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .booking-input {
+        width: 100%;
+        padding: 18px 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        background: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-size: 16px;
+        outline: none;
+        color: #333;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .booking-input::placeholder {
+        color: #888;
+        font-weight: 400;
+    }
+
+    .booking-input:focus {
+        border-color: rgba(0, 0, 0, 0.15);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .otp-btn {
+        width: 100%;
+        padding: 18px 20px;
+        border-radius: 12px;
+        background: var(--accent);
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .otp-btn:hover {
+        opacity: 0.95;
+    }
+
+    .otp-btn:disabled {
+        background-color: #E5E5E5;
+        /* Light gray for disabled state */
+        color: #A0A0A0;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .booking-input:disabled {
+        background-color: #F2F2F2;
+        color: #555;
+        border-color: transparent;
+        box-shadow: none;
+    }
+
+    .links-row {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 12px 0 20px;
+        font-size: 14px;
+        padding: 0 4px;
+    }
+
+    .links-row a {
+        color: #0478D0;
+        text-decoration: underline;
+        cursor: pointer;
+        font-family: "Inter", sans-serif;
+        text-underline-offset: 2px;
+    }
+
+    .otp-section {
+        margin-top: 24px;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .otp-input {
+        width: 100%;
+        padding: 18px 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        background: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-size: 20px;
+        letter-spacing: 2px;
+        outline: none;
+        color: #333;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .otp-input:focus {
+        border-color: rgba(0, 0, 0, 0.15);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 18px 20px;
+        border-radius: 12px;
+        background: #053B50;
+        /* Darker blue/teal from image reference */
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+        box-shadow: 0 4px 12px rgba(5, 59, 80, 0.2);
+    }
+
+    .submit-btn:hover {
+        background: #032b3b;
+    }
+
+    /* Mobile Nav */
+    .mobile-nav {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        top: 68px;
+        max-width: 420px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 12px;
+        padding: 14px;
+        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.16);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        z-index: 1400;
+        transform: translateY(-8px) scale(.995);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .22s ease, transform .22s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-nav.open {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
+    .mobile-nav a {
+        display: block;
+        padding: 10px 12px;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-family: "Playfair Display", serif;
+    }
+
+    .mobile-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.22);
+        z-index: 1350;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .22s ease;
+    }
+
+    .mobile-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    @media (max-width: 900px) {
+        nav.primary {
+            display: none !important;
+        }
+
+        .hamburger {
+            display: flex !important;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .event-card {
+            flex-direction: column;
+            max-width: 450px;
+        }
+
+        .event-img-container {
+            width: 100%;
+            height: 220px;
+            min-width: auto;
+        }
+
+        .event-details {
+            padding: 24px;
+        }
+
+        .event-header h1 {
+            font-size: 32px;
+        }
+
+        .event-header h2 {
+            font-size: 18px;
+        }
+    }
+
+    /* Booking Details CSS */
+    .booking-details {
+        width: 100%;
+        max-width: 900px;
+        align-self: center;
+        margin-top: 10px;
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .verified-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding-bottom: 20px;
+    }
+
+    .verified-info label {
+        font-weight: 700;
+        font-size: 16px;
+        color: #3B1E14;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .verified-val {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+        color: #000;
+    }
+
+    .change-link-verified {
+        color: #0478D0;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 400;
+    }
+
+    .section-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .section-label {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+        color: #3B1E14;
+    }
+
+    .counter-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .counter-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #053B50;
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .counter-btn:hover {
+        opacity: 0.9;
+    }
+
+    .counter-val {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+        color: #000;
+        min-width: 24px;
+        text-align: center;
+    }
+
+    .time-slots-container {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .time-slot {
+        background: white;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 12px 20px;
+        text-align: center;
+        cursor: pointer;
+        min-width: 140px;
+        transition: all 0.2s;
+    }
+
+    .time-slot:hover {
+        border-color: #00C853;
+    }
+
+    .time-slot.active {
+        background: #00C853;
+        /* Green */
+        color: white;
+        border-color: #00C853;
+    }
+
+    .time-slot.active .slot-seats {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .slot-time {
+        font-weight: 700;
+        font-size: 15px;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .slot-seats {
+        font-size: 12px;
+        color: #666;
+    }
+
+    .time-slot.disabled {
+        background-color: #f0f0f0;
+        border-color: #ddd;
+        cursor: not-allowed;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .time-slot.disabled .slot-time,
+    .time-slot.disabled .slot-seats {
+        color: #999;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .total-price {
+        font-family: "Inter", sans-serif;
+        font-weight: 800;
+        font-size: 20px;
+        color: #000;
+    }
+
+    /* Modal CSS */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+    }
+
+    .modal-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal-card {
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        transform: translateY(20px);
+        transition: transform 0.3s;
+    }
+
+    .modal-overlay.show .modal-card {
+        transform: translateY(0);
+    }
+
+    .modal-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .modal-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 15px;
+        color: #555;
+    }
+
+    .modal-row.total {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+        font-weight: 700;
+        color: #000;
+        font-size: 18px;
+    }
+
+    .pay-btn {
+        width: 100%;
+        background: #00C853;
+        color: white;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 16px;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    /* Success Page CSS */
+    .booking-success {
+        width: 100%;
+        max-width: 900px;
+        text-align: center;
+        margin-top: 20px;
+        animation: fadeIn 0.5s;
+    }
+
+    .success-icon {
+        color: #00C853;
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
+
+    .success-title {
+        color: #00C853;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        font-family: "Inter", sans-serif;
+    }
+
+    .success-sub {
+        color: #333;
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .success-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px 40px;
+        max-width: 600px;
+        margin: 0 auto 30px auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .success-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .success-row:last-child {
+        border-bottom: none;
+    }
+
+    .success-label {
+        font-weight: 700;
+        color: #000;
+    }
+
+    .success-val {
+        color: #333;
+    }
+
+    .home-btn {
+        background: #053B50;
+        color: white;
+        padding: 16px 40px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        display: inline-block;
+        font-size: 16px;
+    }
+
+    .home-btn:hover {
+        background: #032b3b;
+    }
+
+    @media (max-width: 600px) {
+        .time-slots-container {
+            justify-content: space-between;
+        }
+
+        .time-slot {
+            width: 48%;
+            /* 2 per row */
+            min-width: auto;
+        }
+    }
+</style>
+
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="topbar" role="banner">
+            <div class="leftbar">
+                <div class="nav-left">
+                    <img src="https://gccservices.in/victoriapublichall/images/VPH-logo_main-EN%201.png" alt="VPH logo"
+                        class="logo">
+                </div>
+
+                <nav class="primary" aria-label="Primary navigation">
+                    <a href="eventhome">Home</a>
+                    <a href="bookingdetails">Booking Details</a>
+
+                    <!-- <a href="#">About VPH</a>
+                    <a href="#">Visit</a>
+                    <a href="#">Contact Us</a> -->
+                </nav>
+            </div>
+
+            <div class="rightbar">
+                <button id="hambtn" class="hamburger" aria-label="Open menu" aria-expanded="false"
+                    aria-controls="mobileNav">
+                    <span class="bar bar1" aria-hidden="true"></span>
+                    <span class="bar bar2" aria-hidden="true"></span>
+                    <span class="bar bar3" aria-hidden="true"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
+        <nav id="mobileNav" class="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+            <a href="eventhome">Home</a>
+            <a href="bookingdetails">Booking Details</a>
+            <!-- <a href="#">About VPH</a>
+            <a href="#">Visit</a>
+            <a href="#">Contact Us</a> -->
+        </nav>
+
+        <!-- Main Content -->
+        <main class="page">
+            <div class="event-header">
+                <h1>Victoria Public Hall</h1>
+                <h2>EVENTS</h2>
+            </div>
+
+            <!-- Back Button & Title -->
+            <div class="booking-nav-row">
+                <a href="eventhome" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <span class="page-title">Book ticket</span>
+            </div>
+
+            <!-- Selected Event Card -->
+            <div class="event-card" th:if="${event != null}">
+                <div class="event-img-container">
+                    <img th:src="@{${event.eventImageUrl}}" class="event-img" alt="Event Image"
+                        onerror="this.src='/images/image_townhall.jpg'">
+                </div>
+                <div class="event-details">
+                    <!-- <div class="badge" th:if="${event.amount == 0}">ENTRY FREE</div> -->
+                    <h3 class="event-title" id="mainEventName" th:text="${event.eventName}">Event Name</h3>
+                    <p class="event-desc" th:text="${event.eventDiscription}">Short description...</p>
+                    <div class="event-meta">
+                        <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                        <span id="mainEventDate"
+                            th:text="${#strings.substring(event.eventDate, 8, 10) + '-' + #strings.substring(event.eventDate, 5, 7) + '-' + #strings.substring(event.eventDate, 0, 4)}">Date
+                            | Time</span>
+                        <span style="margin-left:auto; font-size:20px; font-weight:800;" th:if="${event.amount > 0}"
+                            th:text="'₹ ' + ${event.amount} + '/-'">₹ 500/-</span>
+                    </div>
+                </div>
+                <!-- Hidden fields for JS -->
+                <input type="hidden" id="eventUnitAmount" th:value="${event.amount}">
+                <input type="hidden" id="eventId" th:value="${event.eventId}">
+            </div>
+
+            <!-- Booking Input Form (Hidden later) -->
+            <div class="booking-form-area" id="bookingFormArea">
+                <label class="form-label" for="contactInput">Enter Valid Mobile Number</label>
+
+                <form id="otpForm">
+                    <input type="text" id="contactInput" class="booking-input"
+                        placeholder="Enter 10-digit Mobile Number" maxlength="10" aria-label="Mobile Number">
+                    <button type="button" class="otp-btn" id="sendBtn">Send OTP</button>
+
+                    <div id="linksRow" class="links-row" style="display: none;">
+                        <a id="changeLink">Change mobile number</a>
+                        <a id="resendLink">Resend OTP</a>
+                    </div>
+
+                    <div id="otpSection" class="otp-section" style="display: none;">
+                        <label class="form-label" for="otpInput">Enter OTP</label>
+                        <input type="text" id="otpInput" class="otp-input" placeholder="" maxlength="6">
+                        <button type="button" class="submit-btn" id="submitOtpBtn">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Booking Details Section (Hidden initially) -->
+            <div class="booking-details" id="bookingDetails" style="display: none;">
+
+                <div class="verified-row">
+                    <div class="verified-info">
+                        <label>Mobile Number</label>
+                        <div class="verified-val" id="verifiedContactDisplay">8114557822</div>
+                    </div>
+                    <div>
+                        <a class="change-link-verified" id="changeVerifiedLink">Change</a>
+                    </div>
+                </div>
+
+                <div class="section-row">
+                    <div class="section-label">Number of people</div>
+                    <div class="counter-controls">
+                        <button type="button" class="counter-btn" id="minusBtn"><i
+                                class="fa-solid fa-minus"></i></button>
+                        <span class="counter-val" id="paxCount">06</span>
+                        <button type="button" class="counter-btn" id="plusBtn"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <div class="section-label" style="margin-bottom: 15px;">Select Time Slot</div>
+                    <div class="time-slots-container">
+                        <div class="time-slot" th:each="slot, iterStat : ${timeSlots}"
+                            th:data-time="${slot.eventTiming}" th:data-id="${slot.id}"
+                            th:data-capacity="${slot.maxCapacity}"
+                            th:classappend="${slot.maxCapacity <= 0} ? 'disabled' : ''">
+                            <span class="slot-time" th:text="${slot.eventTiming}">09:00 AM - 10:00 AM</span>
+                            <span class="slot-seats"
+                                th:text="${slot.maxCapacity > 0} ? ${slot.maxCapacity} + ' Seats Available' : 'Full'">20
+                                Seats
+                                Available</span>
+                        </div>
+                        <div th:if="${timeSlots == null or timeSlots.empty}">
+                            <p>No time slots available.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="total-row">
+                    <div>
+                        <div style="font-size:14px; color:#666; margin-bottom:4px;">Total Amount</div>
+                        <div class="total-price" id="totalPrice">₹3000/-</div>
+                    </div>
+                    <button class="submit-btn" style="width: auto; padding: 12px 40px;"
+                        id="continueBtn">Continue</button>
+                </div>
+            </div>
+
+            <!-- Booking Success Section -->
+            <div class="booking-success" id="bookingSuccess" style="display: none;">
+
+                <!-- Receipt Header (Visible on screen and print) -->
+                <div id="receiptHeader" style="text-align: center; margin-bottom: 20px;">
+                    <h2 class="success-title" style="margin-bottom: 5px;">Booking Confirmed!</h2>
+                    <p class="success-sub" style="margin-bottom: 20px;">Your ticket has been booked successfully.</p>
+
+                    <div
+                        style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; width: 100%; max-width: 600px; margin: 0 auto 20px auto;">
+                        <h1 style="font-size: 24px; color: #3B1E14; margin: 0;">Victoria Public Hall</h1>
+                        <p style="font-size: 14px; color: #666; margin-top: 5px;">Event Booking Receipt</p>
+                    </div>
+                </div>
+
+                <div class="success-card" id="visibleReceipt"
+                    style="padding: 0; background: transparent; box-shadow: none;">
+                    <table class="success-table"
+                        style="width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0 auto; max-width: 600px;">
+                        <tbody>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Event Name</td>
+                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #000;"
+                                    id="receiptEventNameDisplay">-</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Visiting on</td>
+                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #000;"
+                                    id="successDate">29 Jan 2026</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Time</td>
+                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #000;"
+                                    id="successTime">8AM - 10AM</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Total Guest(s)</td>
+                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #000;"
+                                    id="successPax">06</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Payment Status</td>
+                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #00C853;">
+                                    SUCCESS</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Amount Paid</td>
+                                <td style="padding: 15px 20px; text-align: right; font-weight: 800; color: #053B50; font-size: 18px;"
+                                    id="successAmount">₹3000/-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="no-print"
+                    style="display: flex; gap: 12px; justify-content: center; width: 100%; max-width: 700px; margin: 20px auto 0 auto;">
+                    <a href="eventhome" class="home-btn" style="flex: 1; text-align: center;">Go back to Events</a>
+                    <button onclick="window.print()" class="home-btn"
+                        style="flex: 1; background: #008eb3; border: none; cursor: pointer;">
+                        Download Receipt <i class="fa-solid fa-download" style="margin-left: 8px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Payment Confirmation Modal -->
+            <div class="modal-overlay" id="paymentModal">
+                <div class="modal-card">
+                    <div class="modal-title">Confirm Booking</div>
+                    <div class="modal-row">
+                        <span>Event</span>
+                        <span id="modalEventName" style="text-align:right; max-width:200px;">-</span>
+                    </div>
+                    <div class="modal-row">
+                        <span>Date</span>
+                        <span id="modalEventDate">-</span>
+                    </div>
+                    <div class="modal-row">
+                        <span>Mobile No</span>
+                        <span id="modalMobile">-</span>
+                    </div>
+                    <div class="modal-row">
+                        <span>Number of Guests</span>
+                        <span id="modalPax">6</span>
+                    </div>
+                    <div class="modal-row">
+                        <span>Time Slot</span>
+                        <span id="modalTime">09:00 AM</span>
+                    </div>
+                    <div class="modal-row total">
+                        <span>Total to Pay</span>
+                        <span id="modalAmount">₹3000</span>
+                    </div>
+                    <button class="pay-btn" id="confirmPayBtn">Pay ₹3000</button>
+                    <button
+                        style="width:100%; background:transparent; border:none; margin-top:10px; color:#777; cursor:pointer;"
+                        onclick="document.getElementById('paymentModal').classList.remove('show')">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Existing Booking Modal -->
+            <div class="modal-overlay" id="existingBookingModal">
+                <div class="modal-card">
+                    <div class="modal-title" style="color:#D32F2F">Active Booking Found</div>
+                    <div style="font-size:15px; color:#555; margin-bottom:15px; line-height:1.5;">
+                        <div style="margin-bottom:8px">
+                            You already have an active booking for:
+                            <div id="existEventName"
+                                style="font-weight:800; color:#000; font-size:18px; margin-top:4px"></div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+                            <span>Date:</span>
+                            <span id="existDate" style="font-weight:700; color:#000"></span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+                            <span>Mobile:</span>
+                            <span id="existMobile" style="font-weight:700; color:#000"></span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+                            <span>Guests:</span>
+                            <span id="existPax" style="font-weight:700; color:#000"></span>
+                        </div>
+                    </div>
+                    <p style="font-size:14px; color:#666; font-style:italic;">
+                        To make a new booking, you must cancel the existing one.
+                    </p>
+                    <button class="pay-btn" id="cancelRebookBtn" style="background:#D32F2F; margin-top:20px">Cancel &
+                        Rebook</button>
+                    <button
+                        style="width:100%; background:transparent; border:none; margin-top:10px; color:#777; cursor:pointer;"
+                        onclick="document.getElementById('existingBookingModal').classList.remove('show')">Close</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- No external libraries needed for native print -->
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #bookingSuccess,
+            #bookingSuccess * {
+                visibility: visible;
+            }
+
+            #bookingSuccess {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                display: block !important;
+                background: white;
+                border: 2px solid #333;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .home-btn {
+                display: none !important;
+            }
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script th:replace="~{fragments/user-script :: script}"></script>
+    <script>
+        // ... (Mobile Menu Logic, OTP Flow Logic, Payment Flow Handlers remain same) ...
+        // I will re-inject the existing script content but with the new downloadReceipt function added.
+
+        // Mobile Menu Logic
+        (function () {
+            const hambtn = document.getElementById('hambtn');
+            const mobileNav = document.getElementById('mobileNav');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            if (hambtn && mobileNav && mobileOverlay) {
+                function openMenu() {
+                    hambtn.setAttribute('aria-expanded', 'true');
+                    mobileNav.classList.add('open'); mobileNav.setAttribute('aria-hidden', 'false');
+                    mobileOverlay.classList.add('show'); mobileOverlay.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                }
+                function closeMenu() {
+                    hambtn.setAttribute('aria-expanded', 'false');
+                    mobileNav.classList.remove('open'); mobileNav.setAttribute('aria-hidden', 'true');
+                    mobileOverlay.classList.remove('show'); mobileOverlay.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+
+                hambtn.addEventListener('click', () => {
+                    const isOpen = hambtn.getAttribute('aria-expanded') === 'true';
+                    if (isOpen) closeMenu(); else openMenu();
+                });
+
+                mobileOverlay.addEventListener('click', closeMenu);
+
+                mobileNav.querySelectorAll('a').forEach(a => {
+                    a.addEventListener('click', closeMenu);
+                });
+            }
+        })();
+
+        // OTP Flow Logic
+        const bookingFormArea = document.getElementById('bookingFormArea');
+        const bookingDetails = document.getElementById('bookingDetails');
+
+        const sendBtn = document.getElementById('sendBtn');
+        const contactInput = document.getElementById('contactInput');
+
+        const linksRow = document.getElementById('linksRow');
+        const resendLink = document.getElementById('resendLink');
+        let resendTimer;
+        let resendCount = 60;
+
+        function startResendTimer() {
+            resendCount = 60;
+            if (resendLink) {
+                resendLink.style.pointerEvents = 'none';
+                resendLink.style.color = '#999';
+                resendLink.style.textDecoration = 'none';
+                resendLink.innerText = `Resend OTP (${resendCount}s)`;
+            }
+
+            clearInterval(resendTimer);
+            resendTimer = setInterval(() => {
+                resendCount--;
+                if (resendLink) resendLink.innerText = `Resend OTP (${resendCount}s)`;
+
+                if (resendCount <= 0) {
+                    clearInterval(resendTimer);
+                    if (resendLink) {
+                        resendLink.innerText = "Resend OTP";
+                        resendLink.style.pointerEvents = 'auto';
+                        resendLink.style.color = '#0478D0';
+                        resendLink.style.textDecoration = 'underline';
+                    }
+                }
+            }, 1000);
+        }
+        const otpSection = document.getElementById('otpSection');
+        const changeLink = document.getElementById('changeLink');
+        const changeVerifiedLink = document.getElementById('changeVerifiedLink');
+        const otpInput = document.getElementById('otpInput');
+        const submitOtpBtn = document.getElementById('submitOtpBtn');
+
+        const verifiedContactDisplay = document.getElementById('verifiedContactDisplay');
+
+        // Booking Logic Elements
+        const minusBtn = document.getElementById('minusBtn');
+        const plusBtn = document.getElementById('plusBtn');
+        const paxCountEl = document.getElementById('paxCount');
+        const totalPriceEl = document.getElementById('totalPrice');
+
+        const continueBtn = document.getElementById('continueBtn');
+        const paymentModal = document.getElementById('paymentModal');
+        const confirmPayBtn = document.getElementById('confirmPayBtn');
+
+        const bookingSuccess = document.getElementById('bookingSuccess');
+
+        const modalPax = document.getElementById('modalPax');
+        const modalTime = document.getElementById('modalTime');
+        const modalAmount = document.getElementById('modalAmount');
+
+        const successDate = document.getElementById('successDate');
+        const successTime = document.getElementById('successTime');
+        const successPax = document.getElementById('successPax');
+        const successAmount = document.getElementById('successAmount');
+
+        // Dynamic Variable Initialization
+        const unitPriceEl = document.getElementById('eventUnitAmount');
+        let unitPrice = unitPriceEl ? parseFloat(unitPriceEl.value) : 500;
+
+        let pax = 1;
+
+        // Get initial time slot
+        const timeSlots = document.querySelectorAll('.time-slot');
+        let selectedTimeSlot = "Not Selected";
+        let selectedTimeSlotId = null;
+
+        if (timeSlots.length > 0) {
+            // Find first non-disabled slot
+            let firstAvailableSlot = null;
+            for (let i = 0; i < timeSlots.length; i++) {
+                if (!timeSlots[i].classList.contains('disabled')) {
+                    firstAvailableSlot = timeSlots[i];
+                    break;
+                }
+            }
+
+            if (firstAvailableSlot) {
+                selectedTimeSlot = firstAvailableSlot.getAttribute('data-time');
+                selectedTimeSlotId = firstAvailableSlot.getAttribute('data-id');
+                firstAvailableSlot.classList.add('active');
+                if (continueBtn) continueBtn.disabled = false;
+            } else {
+                selectedTimeSlot = null;
+                selectedTimeSlotId = null;
+                if (continueBtn) {
+                    continueBtn.disabled = true;
+                    continueBtn.innerText = "No Seats Available";
+                    continueBtn.style.backgroundColor = "#ccc";
+                    continueBtn.style.cursor = "not-allowed";
+                }
+            }
+        } else {
+            // Case where no slots are rendered at all
+            selectedTimeSlot = null;
+            selectedTimeSlotId = null;
+            if (continueBtn) {
+                continueBtn.disabled = true;
+                continueBtn.innerText = "No Slots Available";
+                continueBtn.style.backgroundColor = "#ccc";
+                continueBtn.style.cursor = "not-allowed";
+            }
+        }
+
+        function updatePrice() {
+            if (totalPriceEl) totalPriceEl.innerText = '₹' + (pax * unitPrice) + '/-';
+            if (paxCountEl) paxCountEl.innerText = pax < 10 ? '0' + pax : pax;
+        }
+
+        // Restrict input to digits only
+        contactInput.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '');
+        });
+
+        sendBtn.addEventListener('click', function () {
+            const inputVal = contactInput.value.trim();
+            // Validate Mobile Number (10 digits)
+            const mobileRegex = /^[0-9]{10}$/;
+
+            if (inputVal && mobileRegex.test(inputVal)) {
+                sendOtpApi(inputVal);
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Input',
+                    text: 'Please enter a valid 10-digit mobile number.'
+                });
+                contactInput.focus();
+            }
+        });
+
+        function sendOtpApi(mobileNumber) {
+            $.ajax({
+                type: "GET",
+                url: "/victoriapublichallevent/otpapi/send-otp",
+                data: { userInput: mobileNumber },
+                success: function (response) {
+                    console.log("OTP Sent Response: ", response);
+
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'OTP Sent!',
+                            text: response.message || 'Please check your phone/email.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        // Update UI State
+                        contactInput.disabled = true;
+                        sendBtn.disabled = true;
+                        sendBtn.innerText = "OTP Sent";
+
+                        linksRow.style.display = 'flex';
+                        otpSection.style.display = 'block';
+
+                        // Start Resend Timer
+                        startResendTimer();
+
+                        // Focus on OTP input
+                        setTimeout(() => otpInput.focus(), 100);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Failed to send OTP.'
+                        });
+                    }
+                },
+                error: function (e) {
+                    console.log("Error sending OTP", e);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to send OTP. Please try again.',
+                    });
+                }
+            });
+        }
+
+        function resetOtpFlow() {
+            // Reset UI State for OTP Form
+            contactInput.disabled = false;
+            sendBtn.disabled = false;
+            sendBtn.innerText = "Send OTP"; // Reset button text
+
+            linksRow.style.display = 'none';
+            otpSection.style.display = 'none';
+
+            otpInput.value = '';
+
+            // Allow going back to OTP from Details if needed (though UX usually implies fresh start)
+            if (bookingFormArea) bookingFormArea.style.display = 'block';
+            if (bookingDetails) bookingDetails.style.display = 'none';
+
+            contactInput.focus();
+        }
+
+        if (resendLink) {
+            resendLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                const mobileNumber = contactInput.value.trim();
+                // Call API again
+                sendOtpApi(mobileNumber);
+            });
+        }
+
+        changeLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            resetOtpFlow();
+        });
+
+        if (changeVerifiedLink) {
+            changeVerifiedLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                resetOtpFlow();
+            });
+        }
+
+        otpInput.addEventListener('input', function () {
+            // Allow only digits
+            this.value = this.value.replace(/\D/g, '');
+        });
+
+        submitOtpBtn.addEventListener('click', function () {
+            const otp = otpInput.value.trim();
+            const inputVal = contactInput.value.trim();
+
+            if (otp.length > 3) {
+                $.ajax({
+                    type: "GET",
+                    url: "/victoriapublichallevent/otpapi/verifyOTP",
+                    data: {
+                        otp: otp,
+                        userInput: inputVal
+                    },
+                    success: function (response) {
+                        console.log("Verify Response", response);
+
+                        if (response.verifiedotp === "success") {
+                            // Check for existing booking
+                            // Robust Parameter and Error Handling
+                            const eventIdEl = document.getElementById('eventId');
+                            const reqData = { mobile_no: inputVal };
+                            if (eventIdEl && eventIdEl.value && eventIdEl.value.trim() !== "") {
+                                reqData.event_id = eventIdEl.value;
+                            }
+
+                            $.ajax({
+                                type: "GET",
+                                url: "/victoriapublichallevent/bookingapi/check-booking",
+                                data: reqData,
+                                success: function (checkRes) {
+                                    try {
+                                        if (checkRes && checkRes.found) {
+                                            // Show Existing Modal
+                                            const existNameEl = document.getElementById('existEventName');
+                                            if (existNameEl) existNameEl.innerText = checkRes.eventName || 'Event';
+
+                                            // Format Date if needed, assuming String YYYY-MM-DD
+                                            let eDate = checkRes.eventDate;
+                                            if (eDate && eDate.length >= 10) {
+                                                eDate = eDate.substring(8, 10) + '-' + eDate.substring(5, 7) + '-' + eDate.substring(0, 4);
+                                            }
+                                            const existDateEl = document.getElementById('existDate');
+                                            if (existDateEl) existDateEl.innerText = eDate || '-';
+
+                                            const existTimeEl = document.getElementById('existTime'); // Might be missing in HTML?
+                                            if (existTimeEl) existTimeEl.innerText = checkRes.eventTime || '-';
+
+                                            const existMobileEl = document.getElementById('existMobile');
+                                            if (existMobileEl) existMobileEl.innerText = (checkRes.booking && checkRes.booking.mobNo) ? checkRes.booking.mobNo : '-';
+
+                                            const existPaxEl = document.getElementById('existPax');
+                                            if (existPaxEl) existPaxEl.innerText = (checkRes.booking && checkRes.booking.noOfPeople) ? checkRes.booking.noOfPeople : '-';
+
+                                            const modal = document.getElementById('existingBookingModal');
+                                            if (modal) modal.classList.add('show');
+
+                                            // Handle Cancel Action
+                                            const cancelBtn = document.getElementById('cancelRebookBtn');
+                                            if (cancelBtn) {
+                                                const newBtn = cancelBtn.cloneNode(true);
+                                                cancelBtn.parentNode.replaceChild(newBtn, cancelBtn);
+
+                                                newBtn.addEventListener('click', function () {
+                                                    newBtn.innerHTML = 'Cancelling...';
+                                                    newBtn.disabled = true;
+
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: "/victoriapublichallevent/bookingapi/cancel-booking",
+                                                        contentType: "application/json",
+                                                        data: JSON.stringify({ mobile_no: inputVal }),
+                                                        success: function () {
+                                                            if (modal) modal.classList.remove('show');
+                                                            Swal.fire({
+                                                                icon: 'success',
+                                                                title: 'Previous Booking Cancelled',
+                                                                timer: 1000,
+                                                                showConfirmButton: false
+                                                            }).then(() => {
+                                                                if (verifiedContactDisplay) verifiedContactDisplay.innerText = inputVal;
+                                                                if (bookingFormArea) bookingFormArea.style.display = 'none';
+                                                                if (bookingDetails) bookingDetails.style.display = 'block';
+                                                            });
+                                                        },
+                                                        error: function (xhr, status, err) {
+                                                            console.error("Cancel failed", err);
+                                                            Swal.fire('Error', 'Failed to cancel booking', 'error');
+                                                            newBtn.innerHTML = 'Cancel & Rebook';
+                                                            newBtn.disabled = false;
+                                                        }
+                                                    });
+                                                });
+                                            }
+
+                                        } else {
+                                            // No existing booking - Proceed
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Verified!',
+                                                text: response.message || 'OTP verified successfully.',
+                                                timer: 1200,
+                                                showConfirmButton: false
+                                            }).then(() => {
+                                                if (verifiedContactDisplay) verifiedContactDisplay.innerText = inputVal;
+                                                if (bookingFormArea) bookingFormArea.style.display = 'none';
+                                                if (bookingDetails) bookingDetails.style.display = 'block';
+                                            });
+                                        }
+                                    } catch (e) {
+                                        console.error("Error in check-booking success handler", e);
+                                        // Fallback to success flow if check-logic fails
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Verified!',
+                                            text: 'OTP verified successfully.',
+                                            timer: 1000,
+                                            showConfirmButton: false
+                                        }).then(() => {
+                                            if (verifiedContactDisplay) verifiedContactDisplay.innerText = inputVal;
+                                            if (bookingFormArea) bookingFormArea.style.display = 'none';
+                                            if (bookingDetails) bookingDetails.style.display = 'block';
+                                        });
+                                    }
+                                },
+                                error: function () {
+                                    // Fallback
+                                    if (verifiedContactDisplay) verifiedContactDisplay.innerText = inputVal;
+                                    if (bookingFormArea) bookingFormArea.style.display = 'none';
+                                    if (bookingDetails) bookingDetails.style.display = 'block';
+                                }
+                            });
+
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Incorrect OTP',
+                                text: response.message || 'You entered wrong OTP.',
+                            });
+                        }
+                    },
+                    error: function (e) {
+                        console.error("Verify Error", e);
+                        let msg = 'Error verifying OTP.';
+                        if (e.responseJSON && e.responseJSON.message) {
+                            msg = e.responseJSON.message;
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: msg,
+                        });
+                    }
+                });
+            } else {
+                Swal.fire('Please enter valid OTP');
+            }
+        });
+
+        // Counter Logic
+        if (minusBtn) {
+            minusBtn.addEventListener('click', () => {
+                if (pax > 1) {
+                    pax--;
+                    updatePrice();
+                }
+            });
+        }
+
+        if (plusBtn) {
+            plusBtn.addEventListener('click', () => {
+                if (pax < 5) {
+                    pax++;
+                    updatePrice();
+                }
+            });
+        }
+
+        // --- Payment Flow Handlers ---
+
+        continueBtn.addEventListener('click', () => {
+            // Populate Modal
+            if (modalPax) modalPax.innerText = pax;
+            if (modalTime) modalTime.innerText = selectedTimeSlot;
+            if (modalAmount) modalAmount.innerText = '₹' + (pax * unitPrice);
+            if (confirmPayBtn) confirmPayBtn.innerText = 'Pay ₹' + (pax * unitPrice);
+
+            // New Fields
+            const mainEventName = document.getElementById('mainEventName');
+            const mainEventDate = document.getElementById('mainEventDate');
+            // verifiedContactDisplay and contactInput are global variables
+
+            if (document.getElementById('modalEventName')) document.getElementById('modalEventName').innerText = mainEventName ? mainEventName.innerText : '-';
+            if (document.getElementById('modalEventDate')) document.getElementById('modalEventDate').innerText = mainEventDate ? mainEventDate.innerText : '-';
+
+            let mobile = '-';
+            if (verifiedContactDisplay && verifiedContactDisplay.innerText.trim() !== "") {
+                mobile = verifiedContactDisplay.innerText.trim();
+            } else if (contactInput) {
+                mobile = contactInput.value.trim();
+            }
+            if (document.getElementById('modalMobile')) document.getElementById('modalMobile').innerText = mobile;
+
+            // Show Modal
+            paymentModal.classList.add('show');
+        });
+
+        confirmPayBtn.addEventListener('click', () => {
+            // Use Razorpay flow
+            confirmPayBtn.innerText = "Processing...";
+            confirmPayBtn.disabled = true;
+
+            // Generate a random ref ID for the order
+            const refId = "REF" + Math.floor(Math.random() * 1000000);
+            const amount = pax * unitPrice; // Amount in rupees
+
+            // Call Razorpay trigger from razor-pay.html
+            // paymentStart(id, amount, pax, timeSlotId)
+            if (typeof paymentStart === 'function') {
+                if (!selectedTimeSlotId) {
+                    alert("Please select a time slot.");
+                    confirmPayBtn.disabled = false;
+                    confirmPayBtn.innerText = "Pay ₹" + (pax * unitPrice);
+                    return;
+                }
+                paymentStart(refId, amount, pax, selectedTimeSlotId);
+
+                // Close modal immediately as Razorpay handles the rest
+                paymentModal.classList.remove('show');
+                confirmPayBtn.disabled = false;
+                confirmPayBtn.innerText = "Pay ₹" + (pax * unitPrice);
+            } else {
+                console.error("Razorpay function paymentStart not found");
+                alert("Payment function not loaded. Please refresh.");
+                confirmPayBtn.disabled = false;
+                confirmPayBtn.innerText = "Pay ₹" + (pax * unitPrice);
+            }
+        });
+
+        // Function to be called from razor-pay.html on success
+        window.showBookingSuccess = function (orderId, amount, refId) {
+            const bookingDetails = document.getElementById('bookingDetails');
+            const bookingSuccess = document.getElementById('bookingSuccess');
+
+            if (bookingDetails) bookingDetails.style.display = 'none';
+            if (bookingSuccess) bookingSuccess.style.display = 'block';
+
+            // Populate Success Page
+            const today = new Date();
+            // Format today as DD-MM-YYYY
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            const yyyy = today.getFullYear();
+            const todayFormatted = dd + '-' + mm + '-' + yyyy;
+
+            const successDate = document.getElementById('successDate');
+            const successTime = document.getElementById('successTime');
+            const successPax = document.getElementById('successPax');
+            const successAmount = document.getElementById('successAmount');
+            const receiptEventNameDisplay = document.getElementById('receiptEventNameDisplay');
+            const eventTitle = document.querySelector('.event-title');
+
+            if (successDate) successDate.innerText = todayFormatted;
+            if (successTime) successTime.innerText = selectedTimeSlot; // Uses global var from this file
+            if (successPax) successPax.innerText = pax < 10 ? '0' + pax : pax; // Uses global var
+            if (successAmount) successAmount.innerText = '₹' + (pax * unitPrice) + '/-';
+            if (receiptEventNameDisplay && eventTitle) receiptEventNameDisplay.innerText = eventTitle.innerText;
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        };
+
+        // Time Slot Logic
+        timeSlots.forEach(slot => {
+            slot.addEventListener('click', () => {
+                if (slot.classList.contains('disabled')) return; // Ignore disabled slots
+
+                timeSlots.forEach(s => s.classList.remove('active'));
+                slot.classList.add('active');
+                // Update selected time var
+                selectedTimeSlot = slot.getAttribute('data-time') || slot.querySelector('.slot-time').innerText;
+                selectedTimeSlotId = slot.getAttribute('data-id');
+            });
+        });
+
+        // Init
+        updatePrice();
+    </script>
+</body>
+
+</html>

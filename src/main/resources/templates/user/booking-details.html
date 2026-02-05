@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/user-head :: head}">
+</head>
+<header th:replace="~{user/razor-pay :: header}"></header>
+
+<!-- Add FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+    /* Reusing styles from event-booking.html */
+    :root {
+        --bg: #f6f3ef;
+        --accent: #12363b;
+        --dark: #2f1f1b;
+        --muted: #7b7773;
+        --radius: 14px;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+    }
+
+    body {
+        font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+        background:
+            linear-gradient(rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.82)),
+            url('/images/vph-background_v1.jpg') top center / cover no-repeat,
+            url('/images/vph-background_v1.jpg') bottom center / cover no-repeat;
+        min-height: 100vh;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 18px 24px;
+        color: #3B1E14;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+        position: relative;
+        z-index: 1300;
+        margin-bottom: 20px;
+    }
+
+    .leftbar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        border-radius: 50%;
+    }
+
+    nav.primary {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+    }
+
+    nav.primary a {
+        font-family: "Playfair Display", serif !important;
+        font-weight: 400 !important;
+        font-style: normal !important;
+        font-size: 15px !important;
+        line-height: 100% !important;
+        color: #3C1E12;
+        text-decoration: none;
+        padding: 6px 8px;
+        border-radius: 6px;
+        transition: background 0.2s ease;
+    }
+
+    nav.primary a:hover {
+        background: rgba(0, 0, 0, 0.06);
+    }
+
+    .rightbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .hamburger {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        background: transparent;
+        cursor: pointer;
+        padding: 8px;
+    }
+
+    .hamburger .bar {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: var(--dark);
+        margin: 3px 0;
+        transition: transform .2s, opacity .2s;
+    }
+
+    .page {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+
+    .event-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .event-header h1 {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 48px;
+        color: #3B1E14;
+        margin-bottom: 10px;
+    }
+
+    .event-header h2 {
+        font-family: "Inter", sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #000;
+    }
+
+    .booking-form-area {
+        width: 100%;
+        max-width: 600px;
+        align-self: center;
+        margin-top: 20px;
+        background: white;
+        padding: 30px;
+        border-radius: 24px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-label {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+        color: #3B1E14;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .booking-input,
+    .otp-input {
+        width: 100%;
+        padding: 18px 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        background: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-size: 16px;
+        outline: none;
+        color: #333;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .otp-input {
+        font-size: 20px;
+        letter-spacing: 2px;
+    }
+
+    .otp-btn {
+        width: 100%;
+        padding: 18px 20px;
+        border-radius: 12px;
+        background: var(--accent);
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .otp-btn:hover {
+        opacity: 0.95;
+    }
+
+    .otp-btn:disabled {
+        background-color: #E5E5E5;
+        color: #A0A0A0;
+        cursor: not-allowed;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 18px 20px;
+        border-radius: 12px;
+        background: #053B50;
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+        box-shadow: 0 4px 12px rgba(5, 59, 80, 0.2);
+    }
+
+    .submit-btn:hover {
+        background: #032b3b;
+    }
+
+    .otp-section {
+        margin-top: 24px;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Cards for Bookings */
+    .bookings-list {
+        width: 100%;
+        max-width: 900px;
+        margin-top: 30px;
+        display: none;
+    }
+
+    .booking-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .mobile-nav {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        top: 68px;
+        max-width: 420px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 12px;
+        padding: 14px;
+        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.16);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        z-index: 1400;
+        transform: translateY(-8px) scale(.995);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .22s ease, transform .22s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-nav.open {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
+    .mobile-nav a {
+        display: block;
+        padding: 10px 12px;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-family: "Playfair Display", serif;
+    }
+
+    .mobile-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.22);
+        z-index: 1350;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .22s ease;
+    }
+
+    .mobile-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    @media (max-width: 900px) {
+        nav.primary {
+            display: none !important;
+        }
+
+        .hamburger {
+            display: flex !important;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .booking-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="topbar" role="banner">
+            <div class="leftbar">
+                <div class="nav-left">
+                    <img src="https://gccservices.in/victoriapublichall/images/VPH-logo_main-EN%201.png" alt="VPH logo" class="logo">
+                </div>
+                <nav class="primary" aria-label="Primary navigation">
+                    <a href="eventhome">Home</a>
+                    <a href="bookingdetails">Booking Details</a>
+                </nav>
+            </div>
+            <div class="rightbar">
+                <button id="hambtn" class="hamburger" aria-label="Open menu">
+                    <span class="bar bar1"></span>
+                    <span class="bar bar2"></span>
+                    <span class="bar bar3"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
+        <nav id="mobileNav" class="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+            <a href="eventhome">Home</a>
+            <a href="bookingdetails">Booking Details</a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="page">
+            <div class="event-header">
+                <h1>My Bookings</h1>
+                <h2>VICTORIA PUBLIC HALL</h2>
+            </div>
+
+            <!-- Booking Input Form -->
+            <div class="booking-form-area" id="bookingFormArea">
+                <div>
+                    <label class="form-label" for="contactInput">Enter Mobile Number</label>
+                    <input type="tel" id="contactInput" class="booking-input" placeholder="+91 98765 43210"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+                    <button class="otp-btn" id="sendOtpBtn">Get OTP</button>
+                </div>
+
+                <!-- OTP Section -->
+                <div class="otp-section" id="otpSection" style="display: none;">
+                    <label class="form-label" for="otpInput">Enter OTP</label>
+                    <input type="number" id="otpInput" class="otp-input" placeholder="1234" maxlength="6">
+                    <div
+                        style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:14px; color:#666;">
+                        <span id="otpTimer">00:00</span>
+                        <a href="#" id="resendLink" style="color:#0478D0; pointer-events:none; opacity:0.5;">Resend
+                            OTP</a>
+                    </div>
+                    <button class="submit-btn" id="verifyOtpBtn">Verify & View Bookings</button>
+                    <div class="change-number" style="text-align:center; margin-top:15px;">
+                        <a href="#" onclick="location.reload()" style="color:#666; font-size:14px;">Change Number</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings List Container -->
+            <div class="bookings-list" id="bookingsList">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div id="noBookingsMsg"
+                style="display:none; text-align:center; margin-top:20px; font-size:18px; color:#555;">
+                No active bookings found for this number.
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script th:replace="~{fragments/user-script :: script}"></script>
+
+    <script th:inline="javascript">
+        // Mobile Menu Logic
+        (function () {
+            const hambtn = document.getElementById('hambtn');
+            const mobileNav = document.getElementById('mobileNav');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            if (hambtn && mobileNav && mobileOverlay) {
+                function openMenu() {
+                    hambtn.setAttribute('aria-expanded', 'true');
+                    mobileNav.classList.add('open'); mobileNav.setAttribute('aria-hidden', 'false');
+                    mobileOverlay.classList.add('show'); mobileOverlay.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                }
+                function closeMenu() {
+                    hambtn.setAttribute('aria-expanded', 'false');
+                    mobileNav.classList.remove('open'); mobileNav.setAttribute('aria-hidden', 'true');
+                    mobileOverlay.classList.remove('show'); mobileOverlay.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+                hambtn.addEventListener('click', () => {
+                    const isOpen = hambtn.getAttribute('aria-expanded') === 'true';
+                    if (isOpen) closeMenu(); else openMenu();
+                });
+                mobileOverlay.addEventListener('click', closeMenu);
+            }
+        })();
+
+        // Global Vars
+        const contactInput = document.getElementById('contactInput');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const otpSection = document.getElementById('otpSection');
+        const otpInput = document.getElementById('otpInput');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const bookingFormArea = document.getElementById('bookingFormArea');
+        const bookingsList = document.getElementById('bookingsList');
+        const noBookingsMsg = document.getElementById('noBookingsMsg');
+
+        // OTP Timer Logic
+        let resendTimer;
+        let resendCount = 60;
+        const resendLink = document.getElementById('resendLink');
+
+        function startResendTimer() {
+            resendCount = 60;
+            if (resendLink) {
+                resendLink.style.pointerEvents = 'none';
+                resendLink.style.opacity = '0.5';
+                resendLink.style.textDecoration = 'none';
+                resendLink.innerText = `Resend OTP (${resendCount}s)`;
+            }
+
+            clearInterval(resendTimer);
+            resendTimer = setInterval(() => {
+                resendCount--;
+                if (resendLink) resendLink.innerText = `Resend OTP (${resendCount}s)`;
+
+                if (resendCount <= 0) {
+                    clearInterval(resendTimer);
+                    if (resendLink) {
+                        resendLink.innerText = "Resend OTP";
+                        resendLink.style.pointerEvents = 'auto';
+                        resendLink.style.opacity = '1';
+                        resendLink.style.textDecoration = 'underline';
+                    }
+                }
+            }, 1000);
+        }
+
+        // Send OTP
+        sendOtpBtn.addEventListener('click', function () {
+            const mobileNumber = contactInput.value.trim();
+            if (mobileNumber.length !== 10) {
+                Swal.fire({ icon: 'warning', title: 'Invalid Mobile Number', text: 'Please enter a valid 10-digit number.' });
+                return;
+            }
+
+            sendOtpBtn.innerText = "Sending...";
+            sendOtpBtn.disabled = true;
+
+            $.ajax({
+                type: "GET",
+                url: "/victoriapublichallevent/otpapi/send-otp",
+                data: { userInput: mobileNumber },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'OTP Sent',
+                        text: response.message || 'OTP sent successfully',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    sendOtpBtn.style.display = 'none';
+                    contactInput.disabled = true;
+                    otpSection.style.display = 'block';
+                    startResendTimer();
+                },
+                error: function (e) {
+                    sendOtpBtn.innerText = "Get OTP";
+                    sendOtpBtn.disabled = false;
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to send OTP. Please try again.' });
+                }
+            });
+        });
+
+        // Resend Link
+        if (resendLink) {
+            resendLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                const mobileNumber = contactInput.value.trim();
+
+                $.ajax({
+                    type: "GET",
+                    url: "/victoriapublichallevent/otpapi/send-otp",
+                    data: { userInput: mobileNumber },
+                    success: function (response) {
+                        Swal.fire({ icon: 'success', title: 'OTP Resent', text: 'OTP sent successfully', timer: 1500, showConfirmButton: false });
+                        startResendTimer();
+                    },
+                    error: function (e) {
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to resend OTP.' });
+                    }
+                });
+            });
+        }
+
+        // Verify OTP
+        verifyOtpBtn.addEventListener('click', function () {
+            const otp = otpInput.value.trim();
+            if (otp.length >= 4 && otp.length <= 6) {
+                $.ajax({
+                    type: "GET",
+                    url: "/victoriapublichallevent/otpapi/verifyOTP",
+                    data: {
+                        userInput: contactInput.value.trim(),
+                        otp: otp
+                    },
+                    success: function (response) {
+                        if (response.verifiedotp === 'success') {
+                            // OTP Verified, fetch bookings
+                            fetchBookings(contactInput.value.trim());
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Incorrect OTP', text: response.message || 'Wrong OTP' });
+                        }
+                    },
+                    error: function (e) {
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Error verifying OTP' });
+                    }
+                });
+            } else {
+                Swal.fire('Please enter valid OTP (4-6 digits)');
+            }
+        });
+
+        function formatMyDate(dateStr) {
+            // dateStr yyyy-mm-dd
+            if (!dateStr || dateStr.length < 10) return dateStr;
+            return dateStr.substring(8, 10) + '-' + dateStr.substring(5, 7) + '-' + dateStr.substring(0, 4);
+        }
+
+        function fetchBookings(mobile) {
+            bookingFormArea.style.display = 'none'; // Hide form after verification
+            Swal.fire({
+                title: 'Checking active bookings...',
+                didOpen: () => { Swal.showLoading() }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "/victoriapublichallevent/bookingapi/get-all-bookings",
+                data: { mobile_no: mobile },
+                success: function (list) {
+                    Swal.close();
+                    bookingsList.innerHTML = '';
+
+                    if (list && list.length > 0) {
+                        bookingsList.style.display = 'block';
+                        noBookingsMsg.style.display = 'none';
+
+                        list.forEach(item => {
+                            const booking = item.booking;
+                            const eventName = item.eventName || 'Unknown Event';
+                            const eventDate = item.eventDate || '-';
+                            const formattedDate = formatMyDate(eventDate);
+                            const eventTime = item.eventTime || '-';
+                            const pax = booking.noOfPeople || 0;
+                            const amt = booking.totalAmount || 0;
+                            const status = booking.paymentStatus || 'PENDING';
+                            const color = status === 'SUCCESS' ? 'green' : (status === 'PENDING' ? 'orange' : 'red');
+
+                            const card = `
+                                <div class="booking-card" style="display:block;">
+                                    <div style="width:100%; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">
+                                        <h3 style="margin:0; color:#053B50; font-size:22px;">${eventName}</h3>
+                                        <p style="margin:4px 0 0; font-size:14px; color:#777;">Booking Ref: <b>${booking.refId || 'N/A'}</b></p>
+                                    </div>
+                                    <div class="card-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:20px; width:100%;">
+                                        <div>
+                                             <label style="font-size:13px; color:#666; font-weight:600; display:block; margin-bottom:4px;">Mobile Number</label>
+                                             <div style="font-weight:700; font-size:15px;">${mobile}</div>
+                                        </div>
+                                        <div>
+                                             <label style="font-size:13px; color:#666; font-weight:600; display:block; margin-bottom:4px;">Booking Date</label>
+                                             <div style="font-weight:700; font-size:15px;">${formattedDate}</div>
+                                        </div>
+                                        <div>
+                                             <label style="font-size:13px; color:#666; font-weight:600; display:block; margin-bottom:4px;">Time Slot</label>
+                                             <div style="font-weight:700; font-size:15px;">${eventTime}</div>
+                                        </div>
+                                        <div>
+                                             <label style="font-size:13px; color:#666; font-weight:600; display:block; margin-bottom:4px;">Number of Guests</label>
+                                             <div style="font-weight:700; font-size:15px;">${pax}</div>
+                                        </div>
+                                        <div>
+                                             <label style="font-size:13px; color:#666; font-weight:600; display:block; margin-bottom:4px;">Total Amount</label>
+                                             <div style="font-weight:700; font-size:16px; color:#053B50;">₹ ${amt}</div>
+                                        </div>
+                                        <div>
+                                             <label style="font-size:13px; color:#666; font-weight:600; display:block; margin-bottom:4px;">Payment Status</label>
+                                             <div style="font-weight:700; font-size:15px; color:${color}; text-transform:uppercase;">${status}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            bookingsList.insertAdjacentHTML('beforeend', card);
+                        });
+                    } else {
+                        bookingsList.style.display = 'none';
+                        noBookingsMsg.style.display = 'block';
+                        noBookingsMsg.innerText = "No active bookings found for " + mobile;
+                    }
+                },
+                error: function (e) {
+                    Swal.close();
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to fetch bookings details.' });
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>
