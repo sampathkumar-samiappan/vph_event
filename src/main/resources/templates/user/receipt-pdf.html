@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            /* height: 100%; */
+        }
+
+        .page-bg {
+            width: 100%;
+            height: 297mm;
+            padding: 50px;
+            box-sizing: border-box;
+            /* 🔥 MAIN FIX */
+
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)),
+                url("images/vph-background_v1.jpg");
+
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+
+            overflow: hidden;
+        }
+
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .value {
+            text-align: right;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .success {
+            color: #00C853;
+        }
+
+        .amount {
+            font-weight: 800;
+            color: #053B50;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-bg">
+
+        <div class="title">Victoria Public Hall - Booking Receipt</div>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td class="label">Event Name</td>
+                    <td class="value" th:text="${eventName}">Event Name</td>
+                </tr>
+                <tr>
+                    <td class="label">Visiting on</td>
+                    <td class="value" th:text="${eventDate}">07-02-2026</td>
+                </tr>
+                <tr>
+                    <td class="label">Total Guest(s)</td>
+                    <td class="value" th:text="${totalGuest}">1</td>
+                </tr>
+                <tr>
+                    <td class="label">Payment Status</td>
+                    <td class="value success">SUCCESS</td>
+                </tr>
+                <tr>
+                    <td class="label">Amount Paid</td>
+                    <td class="value amount" th:text="'Rs: ' + ${amount} + '/-'">Rs: 1/-</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</body>
+
+</html>

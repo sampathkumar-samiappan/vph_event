@@ -97,6 +97,33 @@
 			<artifactId>json</artifactId>
 			<version>20230227</version>
 		</dependency>
+<!-- JasperReports -->
+<dependency>
+    <groupId>net.sf.jasperreports</groupId>
+    <artifactId>jasperreports</artifactId>
+    <version>6.21.0</version>
+</dependency>
+<dependency>
+    <groupId>com.lowagie</groupId>
+    <artifactId>itext</artifactId>
+    <version>2.1.7</version>
+</dependency>
+
+<dependency>
+    <groupId>com.openhtmltopdf</groupId>
+    <artifactId>openhtmltopdf-pdfbox</artifactId>
+    <version>1.0.10</version>
+</dependency>
+
+<dependency>
+    <groupId>com.openhtmltopdf</groupId>
+    <artifactId>openhtmltopdf-slf4j</artifactId>
+    <version>1.0.10</version>
+</dependency>
+
+
+
+
 	</dependencies>
 
 	<build>

@@ -505,10 +505,19 @@
                         <span class="price" th:if="${ev.amount > 0}" th:text="'₹ ' + ${ev.amount} + '/-'">₹ 500/-</span>
                     </div>
                     <div>
-                        <!-- Link to booking with eventId -->
+                        <!-- Link to booking with eventId (Form POST to hide params) -->
+                        <form th:action="@{/victoriapublichallevent/eventbooking}" method="post"
+                            style="display:inline;">
+                            <input type="hidden" name="encryptedEventId" th:value="${ev.encryptedEventId}" />
+                            <button type="submit" class="ticket-btn">Get Tickets</button>
+                        </form>
+                    </div>
+
+                    <!-- <div>
+                        -- Link to booking with eventId --
                         <a th:href="@{/victoriapublichallevent/eventbooking(eventId=${ev.eventId})}"
                             class="ticket-btn">Get Tickets</a>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 

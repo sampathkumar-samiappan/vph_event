@@ -5,6 +5,7 @@ import java.util.Map;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gcc.victoriapublichallEvent.constants.AppConstants;
+import com.gcc.victoriapublichallEvent.entity.EventMaster;
 import com.gcc.victoriapublichallEvent.entity.EventRegDetails;
 import com.gcc.victoriapublichallEvent.service.BookingService;
 import com.razorpay.Order;
@@ -153,6 +155,40 @@ public class BookingController {
         } else {
             return ResponseEntity.status(400).body("Failed to cancel or booking not found");
         }
+    }
+
+    @GetMapping("/downloadReceipt")
+    public ResponseEntity<byte[]> downloadReceipt(@RequestParam("orderid") String orderId) throws Exception {
+
+        orderId = orderId.replace("\"", "").trim();
+        EventRegDetails booking = bookingService.getBookingByOrderId(orderId);
+
+        if (booking == null) {
+            return ResponseEntity.status(404).body(null);
+        }
+
+        EventMaster event = bookingService.getEventById(booking.getEventId());
+
+        String eventName = (event != null) ? event.getEventName() : "-";
+        String eventDate = (event != null) ? event.getEventDate() : "-";
+
+        String totalGuest = (booking.getNoOfPeople() != null) ? booking.getNoOfPeople().toString() : "0";
+        String amount = (booking.getTotalAmount() != null) ? booking.getTotalAmount().toString() : "0";
+
+        // ✅ Thymeleaf template HTML generate pannrom
+        String html = bookingService.generateReceiptHtmlFromTemplate(eventName, eventDate, totalGuest, amount);
+
+        byte[] pdfBytes = bookingService.generateReceiptPdfFromHtml(html);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition",
+                        "attachment; filename=\"Victoria_Public_Hall_Event_Booking_Receipt.pdf\"")
+
+                // .header("Content-Disposition", "attachment; filename=\"receipt_" + orderId +
+                // ".pdf\"")
+                .header("Content-Type", "application/pdf")
+                .header("Content-Length", String.valueOf(pdfBytes.length))
+                .body(pdfBytes);
     }
 
 }

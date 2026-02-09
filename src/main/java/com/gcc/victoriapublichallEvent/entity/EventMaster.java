@@ -27,7 +27,7 @@ public class EventMaster {
     @Column(name = "event_name")
     private String eventName;
 
-    @Column(name = "event_discription")
+    @Column(name = "event_discription", length = 5000)
     private String eventDiscription;
 
     @Column(name = "event_date")

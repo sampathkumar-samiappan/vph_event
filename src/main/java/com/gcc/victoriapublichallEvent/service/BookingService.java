@@ -2,10 +2,10 @@ package com.gcc.victoriapublichallEvent.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +21,11 @@ import com.gcc.victoriapublichallEvent.entity.EventPayment;
 import com.gcc.victoriapublichallEvent.repository.EventOrderLogRepository;
 import com.gcc.victoriapublichallEvent.repository.EventPaymentRepository;
 
+import org.thymeleaf.context.Context;
+
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import java.io.ByteArrayOutputStream;
+
 @Service
 public class BookingService {
 
@@ -32,6 +37,9 @@ public class BookingService {
 
     @Autowired
     private EventRegDetailsRepository eventRegDetailsRepository;
+
+    @Autowired
+    private org.thymeleaf.TemplateEngine templateEngine;
 
     public ResponseEntity<?> getbookingDetailsByUser(String mobile) {
         // Implementation for history if needed
@@ -49,6 +57,34 @@ public class BookingService {
         if (eventId == null)
             return null;
         return eventMasterRepository.findById(eventId).orElse(null);
+    }
+
+    public byte[] generateReceiptPdfFromHtml(String html) throws Exception {
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        PdfRendererBuilder builder = new PdfRendererBuilder();
+
+        // ✅ Correct baseUri (Works in local + server + jar)
+        String baseUri = new ClassPathResource("static/").getURL().toString();
+
+        builder.withHtmlContent(html, baseUri);
+        builder.toStream(os);
+        builder.run();
+
+        return os.toByteArray();
+    }
+
+    public String generateReceiptHtmlFromTemplate(String eventName, String eventDate, String totalGuest,
+            String amount) {
+
+        Context context = new Context();
+        context.setVariable("eventName", eventName);
+        context.setVariable("eventDate", eventDate);
+        context.setVariable("totalGuest", totalGuest);
+        context.setVariable("amount", amount);
+
+        return templateEngine.process("user/receipt-pdf", context);
     }
 
     public EventMaster getActiveEvent() {
@@ -121,9 +157,6 @@ public class BookingService {
             reg.setPaymentStatus("SUCCESS");
             reg.setBookingFlag("BOOKED");
 
-            // We might need to extract time_slot_id and no_of_people from data if passed,
-            // or if we stored them in session/temp.
-            // For now, let's assume valid data is passed or update controller to pass it.
             if (data.get("time_slot_id") != null) {
                 try {
                     Integer tId = Integer.parseInt(data.get("time_slot_id").toString());

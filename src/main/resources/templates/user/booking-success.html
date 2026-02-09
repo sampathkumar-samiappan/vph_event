@@ -294,9 +294,23 @@
         font-weight: 700;
         display: inline-block;
         font-size: 16px;
-        width: 100%;
-        max-width: 700px;
         transition: background 0.2s;
+        border: none;
+        cursor: pointer;
+        width: auto;
+        /* IMPORTANT */
+        max-width: none;
+        /* IMPORTANT */
+    }
+
+    .no-print {
+        display: flex !important;
+        gap: 12px !important;
+    }
+
+    .no-print a,
+    .no-print button {
+        flex: 1 !important;
     }
 
     .home-btn:hover {
@@ -331,7 +345,21 @@
             transform: translateY(0);
         }
     }
+
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        #receiptDiv {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+    }
 </style>
+
 
 <body>
     <div class="container">
@@ -398,7 +426,8 @@
                     </div>
                 </div>
 
-                <div class="success-card" style="padding: 0; background: transparent; box-shadow: none;">
+                <div id="receiptDiv" class="success-card"
+                    style="padding: 0; background: transparent; box-shadow: none;">
                     <table class="success-table"
                         style="width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0 auto; max-width: 600px;">
                         <tbody>
@@ -433,14 +462,18 @@
                 </div>
 
                 <div class="no-print"
-                    style="display: flex; gap: 12px; justify-content: center; width: 100%; max-width: 700px; margin: 20px auto 0 auto;">
-                    <a href="eventhome" class="home-btn" style="flex: 1; text-align: center;">Go
-                        back to Events</a>
-                    <button onclick="window.print()" class="home-btn"
-                        style="flex: 1; background: #008eb3; border: none; cursor: pointer;">
-                        Download Receipt <i class="fa-solid fa-download" style="margin-left: 8px;"></i>
-                    </button>
+                    style="display:flex; gap:12px; justify-content:center; width:100%; max-width:700px; margin:20px auto;">
+
+                    <a href="eventhome" class="home-btn" style="flex:1; text-align:center;">
+                        Go back to Events
+                    </a>
+
+                    <a th:href="@{/victoriapublichallevent/bookingapi/downloadReceipt(orderid=${booking.refId})}"
+                        class="home-btn" style="flex:1; background:#008eb3; text-align:center;">
+                        Download PDF
+                    </a>
                 </div>
+
             </div>
 
             <div class="booking-success" th:if="${booking == null}">
@@ -455,41 +488,28 @@
     </div>
 
     <!-- No external libraries needed for native print -->
-    <style>
-        @media print {
-            body * {
-                visibility: hidden;
-            }
 
-            #bookingSuccess,
-            #bookingSuccess * {
-                visibility: visible;
-            }
-
-            #bookingSuccess {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 20px;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            .home-btn {
-                display: none !important;
-            }
-        }
-    </style>
 </body>
 
 <script th:replace="~{fragments/user-script :: script}"></script>
-<script>
-    // Simple Print Receipt Logic
-    // Accessing window.print() directly from button
-</script>
+
+<!-- <script th:inline="javascript">
+    function printReceipt() {
+        let orderId = '[[${booking.refId}]]';  // correct for String
+        window.location.href = "/victoriapublichallevent/bookingapi/downloadReceipt?orderid=" + orderId;
+    }
+</script> -->
+
+
+<!-- <script th:inline="javascript">
+    function printReceipt() {
+        let orderId = '[[${booking.refId}]]';
+        window.location.href = "/victoriapublichallevent/bookingapi/downloadReceipt?orderid=" + orderId;
+        console.log(orderId);
+
+    }
+</script> -->
+
+
 
 </html>

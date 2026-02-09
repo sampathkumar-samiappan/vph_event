@@ -4,6 +4,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMethod;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import java.util.List;
@@ -12,7 +14,7 @@ import com.gcc.victoriapublichallEvent.entity.EventMaster;
 import com.gcc.victoriapublichallEvent.entity.EventRegDetails;
 import com.gcc.victoriapublichallEvent.entity.EventTimeSlot;
 import com.gcc.victoriapublichallEvent.service.BookingService;
-
+import com.gcc.victoriapublichallEvent.service.EncryptionService;
 import com.gcc.victoriapublichallEvent.constants.AppConstants;
 
 @Controller
@@ -21,6 +23,9 @@ public class MainController {
 
     @Autowired
     private BookingService bookingService;
+
+    @Autowired
+    private EncryptionService encryptionService;
 
     @GetMapping("/bookingdetails")
     public String bookingDetails() {
@@ -33,21 +38,35 @@ public class MainController {
         model.addAttribute("events", events);
 
         if (!events.isEmpty()) {
+            events.forEach(e -> e.setEncryptedEventId(encryptionService.encrypt(String.valueOf(e.getEventId()))));
             model.addAttribute("event", events.get(0));
         }
+
+        // if (!events.isEmpty()) {
+        // model.addAttribute("event", events.get(0));
+        // }
 
         return "user/event-home";
     }
 
-    @GetMapping("/eventbooking")
-    public String eventBooking(@RequestParam(required = false) Integer eventId, Model model) {
+    @RequestMapping(value = "/eventbooking", method = { RequestMethod.GET, RequestMethod.POST })
+    public String eventBooking(@RequestParam(required = false) String encryptedEventId, Model model) {
+
         EventMaster event = null;
 
-        if (eventId != null) {
-            event = bookingService.getEventById(eventId);
-        }
-
-        if (event == null) {
+        if (encryptedEventId != null) {
+            String decryptedStr = encryptionService.decrypt(encryptedEventId);
+            if (decryptedStr != null) {
+                try {
+                    Integer decryptedId = Integer.parseInt(decryptedStr);
+                    event = bookingService.getEventById(decryptedId);
+                } catch (NumberFormatException e) {
+                    return "redirect:/eventhome";
+                }
+            } else {
+                return "redirect:/eventhome";
+            }
+        } else {
             event = bookingService.getActiveEvent();
         }
 
@@ -57,7 +76,7 @@ public class MainController {
             model.addAttribute("timeSlots", slots);
         }
 
-        // Pass Razorpay Key ID to the view
+        // IMPORTANT LINE
         model.addAttribute("keyId", AppConstants.key_id);
 
         return "user/event-booking";
