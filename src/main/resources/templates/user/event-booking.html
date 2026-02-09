@@ -914,7 +914,9 @@
                         onerror="this.src='/images/image_townhall.jpg'">
                 </div>
                 <div class="event-details">
-                    <!-- <div class="badge" th:if="${event.amount == 0}">ENTRY FREE</div> -->
+                    <div class="badge" th:if="${event.eventTypeMaster != null}"
+                        th:text="${event.eventTypeMaster.eventType}">Event Type</div>
+
                     <h3 class="event-title" id="mainEventName" th:text="${event.eventName}">Event Name</h3>
                     <p class="event-desc" th:text="${event.eventDiscription}">Short description...</p>
                     <div class="event-meta">
@@ -923,7 +925,9 @@
                             th:text="${#strings.substring(event.eventDate, 8, 10) + '-' + #strings.substring(event.eventDate, 5, 7) + '-' + #strings.substring(event.eventDate, 0, 4)}">Date
                             | Time</span>
                         <span style="margin-left:auto; font-size:20px; font-weight:800;" th:if="${event.amount > 0}"
-                            th:text="'₹ ' + ${event.amount} + '/-'">₹ 500/-</span>
+                            th:text="'₹ ' + ${event.amount} + '/-'"></span>
+                        <span style="margin-left:auto; font-size:20px; font-weight:800; color:#00C853;"
+                            th:if="${event.amount == 0}">ENTRY FREE</span>
                     </div>
                 </div>
                 <!-- Hidden fields for JS -->
@@ -971,7 +975,7 @@
                     <div class="counter-controls">
                         <button type="button" class="counter-btn" id="minusBtn"><i
                                 class="fa-solid fa-minus"></i></button>
-                        <span class="counter-val" id="paxCount">06</span>
+                        <span class="counter-val" id="paxCount"></span>
                         <button type="button" class="counter-btn" id="plusBtn"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
@@ -983,7 +987,7 @@
                             th:data-time="${slot.eventTiming}" th:data-id="${slot.id}"
                             th:data-capacity="${slot.availableCapacity}"
                             th:classappend="${slot.availableCapacity <= 0} ? 'disabled' : ''">
-                            <span class="slot-time" th:text="${slot.eventTiming}">09:00 AM - 10:00 AM</span>
+                            <span class="slot-time" th:text="${slot.eventTiming}"></span>
                             <span class="slot-seats"
                                 th:text="${slot.availableCapacity > 0} ? ${slot.availableCapacity} + ' Seats Available' : 'Full'">20
                                 Seats
@@ -998,7 +1002,7 @@
                 <div class="total-row">
                     <div>
                         <div style="font-size:14px; color:#666; margin-bottom:4px;">Total Amount</div>
-                        <div class="total-price" id="totalPrice">₹3000/-</div>
+                        <div class="total-price" id="totalPrice"></div>
                     </div>
                     <button class="submit-btn" style="width: auto; padding: 12px 40px;"
                         id="continueBtn">Continue</button>
@@ -1063,9 +1067,13 @@
                     style="display: flex; gap: 12px; justify-content: center; width: 100%; max-width: 700px; margin: 20px auto 0 auto;">
                     <a href="eventhome" class="home-btn" style="flex: 1; text-align: center;">Go back to Events</a>
                     <button onclick="window.print()" class="home-btn"
-                        style="flex: 1; background: #008eb3; border: none; cursor: pointer;">
-                        Download Receipt <i class="fa-solid fa-download" style="margin-left: 8px;"></i>
+                        style="flex: 1; background: #008eb3; border: none; cursor: pointer; display:none;">
+                        Print Receipt <i class="fa-solid fa-print" style="margin-left: 8px;"></i>
                     </button>
+                    <a id="downloadReceiptBtn" href="#" class="home-btn"
+                        style="flex: 1; background: #008eb3; border: none; cursor: pointer; text-align: center; color: white;">
+                        Download Receipt <i class="fa-solid fa-download" style="margin-left: 8px;"></i>
+                    </a>
                 </div>
             </div>
 
@@ -1087,17 +1095,17 @@
                     </div>
                     <div class="modal-row">
                         <span>Number of Guests</span>
-                        <span id="modalPax">6</span>
+                        <span id="modalPax"></span>
                     </div>
                     <div class="modal-row">
                         <span>Time Slot</span>
-                        <span id="modalTime">09:00 AM</span>
+                        <span id="modalTime"></span>
                     </div>
                     <div class="modal-row total">
                         <span>Total to Pay</span>
-                        <span id="modalAmount">₹3000</span>
+                        <span id="modalAmount"></span>
                     </div>
-                    <button class="pay-btn" id="confirmPayBtn">Pay ₹3000</button>
+                    <button class="pay-btn" id="confirmPayBtn"></button>
                     <button
                         style="width:100%; background:transparent; border:none; margin-top:10px; color:#777; cursor:pointer;"
                         onclick="document.getElementById('paymentModal').classList.remove('show')">Cancel</button>
@@ -1629,8 +1637,24 @@
             // Populate Modal
             if (modalPax) modalPax.innerText = pax;
             if (modalTime) modalTime.innerText = selectedTimeSlot;
-            if (modalAmount) modalAmount.innerText = '₹' + (pax * unitPrice);
-            if (confirmPayBtn) confirmPayBtn.innerText = 'Pay ₹' + (pax * unitPrice);
+
+            // Check if amount is 0
+            const totalAmount = pax * unitPrice;
+            if (modalAmount) {
+                if (totalAmount === 0) {
+                    modalAmount.innerText = 'FREE';
+                } else {
+                    modalAmount.innerText = '₹' + totalAmount;
+                }
+            }
+
+            if (confirmPayBtn) {
+                if (totalAmount === 0) {
+                    confirmPayBtn.innerText = 'Confirm Booking';
+                } else {
+                    confirmPayBtn.innerText = 'Pay ₹' + totalAmount;
+                }
+            }
 
             // New Fields
             const mainEventName = document.getElementById('mainEventName');
@@ -1653,13 +1677,73 @@
         });
 
         confirmPayBtn.addEventListener('click', () => {
+            const amount = pax * unitPrice; // Amount in rupees
+
+            // FREE EVENT FLOW
+            if (amount === 0) {
+                confirmPayBtn.innerText = "Processing...";
+                confirmPayBtn.disabled = true;
+
+                if (!selectedTimeSlotId) {
+                    alert("Please select a time slot.");
+                    confirmPayBtn.disabled = false;
+                    confirmPayBtn.innerText = "Confirm Booking";
+                    return;
+                }
+
+                // Direct Call to Backend for Free Event
+                const dummyRefId = "FREE-" + Math.floor(Math.random() * 1000000);
+
+                const payload = {
+                    amount: 0,
+                    amt: 0,
+                    order_id: dummyRefId,
+                    payment_id: "FREE_EVENT",
+                    mobile_no: (verifiedContactDisplay && verifiedContactDisplay.innerText.trim() !== "") ? verifiedContactDisplay.innerText.trim() : contactInput.value.trim(),
+                    no_of_people: pax,
+                    time_slot_id: selectedTimeSlotId,
+                    status: "success"
+                };
+
+                // Add eventId if available
+                const eventIdEl = document.getElementById('eventId');
+                if (eventIdEl && eventIdEl.value) {
+                    payload.event_id = eventIdEl.value;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/victoriapublichallevent/bookingapi/Confirm",
+                    contentType: "application/json",
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        console.log("Free Booking Success", response);
+                        paymentModal.classList.remove('show');
+
+                        // Show Success Page
+                        window.showBookingSuccess(dummyRefId, 0, dummyRefId);
+                    },
+                    error: function (xhr) {
+                        console.error("Free Booking Error", xhr);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Booking Failed',
+                            text: 'Something went wrong. Please try again.'
+                        });
+                        confirmPayBtn.disabled = false;
+                        confirmPayBtn.innerText = "Confirm Booking";
+                    }
+                });
+                return;
+            }
+
+            // PAID EVENT FLOW (Existing Logic)
             // Use Razorpay flow
             confirmPayBtn.innerText = "Processing...";
             confirmPayBtn.disabled = true;
 
             // Generate a random ref ID for the order
             const refId = "REF" + Math.floor(Math.random() * 1000000);
-            const amount = pax * unitPrice; // Amount in rupees
 
             // Call Razorpay trigger from razor-pay.html
             // paymentStart(id, amount, pax, timeSlotId)
@@ -1706,6 +1790,14 @@
             const successAmount = document.getElementById('successAmount');
             const receiptEventNameDisplay = document.getElementById('receiptEventNameDisplay');
             const eventTitle = document.querySelector('.event-title');
+
+            // Update Download Button Link
+            const downBtn = document.getElementById('downloadReceiptBtn');
+            if (downBtn) {
+                downBtn.href = "/victoriapublichallevent/bookingapi/downloadReceipt?orderid=" + orderId;
+                // Optional: Trigger click if they want auto-download
+                // downBtn.click(); 
+            }
 
             if (successDate) successDate.innerText = todayFormatted;
             if (successTime) successTime.innerText = selectedTimeSlot; // Uses global var from this file
