@@ -98,7 +98,13 @@
                 </tr>
                 <tr>
                     <td class="label">Visiting on</td>
-                    <td class="value" th:text="${eventDate}">07-02-2026</td>
+                    <td class="value"
+                        th:text="${eventDate != null and eventDate.length() >= 10 ? #strings.substring(eventDate, 8, 10) + '-' + #strings.substring(eventDate, 5, 7) + '-' + #strings.substring(eventDate, 0, 4) : eventDate}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Mobile Number</td>
+                    <td class="value" th:text="${mobileNo}">-</td>
                 </tr>
                 <tr>
                     <td class="label">Total Guest(s)</td>

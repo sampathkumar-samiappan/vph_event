@@ -63,7 +63,7 @@ public class OtpController {
         } else {
             return ResponseEntity.ok(Map.of(
                     "status", "error",
-                    "message", "Invalid Mobile Number or Email ID"));
+                    "message", "Invalid Mobile Number"));
         }
     }
 
@@ -81,7 +81,7 @@ public class OtpController {
             // Validate OTP matches input user
             if (otpUser == null || !otpUser.equals(userInput)) {
                 response.put("verifiedotp", "error");
-                response.put("message", "OTP does not belong to this mobile/email.");
+                response.put("message", "OTP does not belong to this mobile.");
                 return ResponseEntity.ok(response);
             }
 

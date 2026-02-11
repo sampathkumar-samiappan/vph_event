@@ -76,13 +76,14 @@ public class BookingService {
     }
 
     public String generateReceiptHtmlFromTemplate(String eventName, String eventDate, String totalGuest,
-            String amount) {
+            String amount, String mobileNo) {
 
         Context context = new Context();
         context.setVariable("eventName", eventName);
         context.setVariable("eventDate", eventDate);
         context.setVariable("totalGuest", totalGuest);
         context.setVariable("amount", amount);
+        context.setVariable("mobileNo", mobileNo);
 
         return templateEngine.process("user/receipt-pdf", context);
     }

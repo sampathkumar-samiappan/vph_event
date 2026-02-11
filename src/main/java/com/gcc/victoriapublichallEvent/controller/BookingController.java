@@ -175,8 +175,11 @@ public class BookingController {
         String totalGuest = (booking.getNoOfPeople() != null) ? booking.getNoOfPeople().toString() : "0";
         String amount = (booking.getTotalAmount() != null) ? booking.getTotalAmount().toString() : "0";
 
+        String mobileNo = (booking.getMobNo() != null) ? booking.getMobNo() : "-";
+
         // ✅ Thymeleaf template HTML generate pannrom
-        String html = bookingService.generateReceiptHtmlFromTemplate(eventName, eventDate, totalGuest, amount);
+        String html = bookingService.generateReceiptHtmlFromTemplate(eventName, eventDate, totalGuest, amount,
+                mobileNo);
 
         byte[] pdfBytes = bookingService.generateReceiptPdfFromHtml(html);
 

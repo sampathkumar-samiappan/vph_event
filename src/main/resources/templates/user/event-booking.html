@@ -1375,7 +1375,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'OTP Sent!',
-                            text: response.message || 'Please check your phone/email.',
+                            text: response.message || 'Please check your phone.',
                             timer: 1500,
                             showConfirmButton: false
                         });
@@ -1720,8 +1720,16 @@
                         console.log("Free Booking Success", response);
                         paymentModal.classList.remove('show');
 
-                        // Show Success Page
-                        window.showBookingSuccess(dummyRefId, 0, dummyRefId);
+                        // SweetAlert Success & Redirect
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Booking Confirmed!',
+                            text: 'Your ticket has been booked successfully.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = "/victoriapublichallevent/bookingQRCode?orderid=" + dummyRefId;
+                        });
                     },
                     error: function (xhr) {
                         console.error("Free Booking Error", xhr);
