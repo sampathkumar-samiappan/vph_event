@@ -93,30 +93,39 @@
         <table>
             <tbody>
                 <tr>
-                    <td class="label">Event Name</td>
-                    <td class="value" th:text="${eventName}">Event Name</td>
+                    <td class="label">Mobile No</td>
+                    <td class="value" th:text="${booking.mobNo}">-</td>
                 </tr>
                 <tr>
-                    <td class="label">Visiting on</td>
+                    <td class="label">Event Name</td>
+                    <td class="value" th:text="${event.eventName}">Event Name</td>
+                </tr>
+                <tr>
+                    <td class="label">Event Date</td>
                     <td class="value"
-                        th:text="${eventDate != null and eventDate.length() >= 10 ? #strings.substring(eventDate, 8, 10) + '-' + #strings.substring(eventDate, 5, 7) + '-' + #strings.substring(eventDate, 0, 4) : eventDate}">
+                        th:text="${event.eventDate != null and event.eventDate.length() >= 10 ? #strings.substring(event.eventDate, 8, 10) + '-' + #strings.substring(event.eventDate, 5, 7) + '-' + #strings.substring(event.eventDate, 0, 4) : event.eventDate}">
                     </td>
                 </tr>
                 <tr>
-                    <td class="label">Mobile Number</td>
-                    <td class="value" th:text="${mobileNo}">-</td>
+                    <td class="label">Event Timing</td>
+                    <td class="value" th:text="${timeSlot != null ? timeSlot.eventTiming : '-'}">07:00 AM - 08:30 AM
+                    </td>
                 </tr>
                 <tr>
-                    <td class="label">Total Guest(s)</td>
-                    <td class="value" th:text="${totalGuest}">1</td>
+                    <td class="label">Booking Date</td>
+                    <td class="value" th:text="${#temporals.format(booking.cdate, 'dd-MM-yyyy')}">11-02-2026</td>
                 </tr>
                 <tr>
-                    <td class="label">Payment Status</td>
-                    <td class="value success">SUCCESS</td>
+                    <td class="label">Total People</td>
+                    <td class="value" th:text="${booking.noOfPeople}">2</td>
                 </tr>
                 <tr>
-                    <td class="label">Amount Paid</td>
-                    <td class="value amount" th:text="'Rs: ' + ${amount} + '/-'">Rs: 1/-</td>
+                    <td class="label">Total Amount</td>
+                    <td class="value" th:text="'RS:' + ${booking.totalAmount}">₹ 60.0</td>
+                </tr>
+                <tr>
+                    <!-- <td class="label">Reference Id</td>
+                    <td class="value" th:text="${booking.refId}">2026021118</td> -->
                 </tr>
             </tbody>
         </table>

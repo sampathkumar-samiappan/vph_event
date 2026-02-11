@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EventOrderLogRepository extends JpaRepository<EventOrderLog, Integer> {
+    EventOrderLog findByOrderId(String orderId);
 }

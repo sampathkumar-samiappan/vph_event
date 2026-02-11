@@ -75,15 +75,13 @@ public class BookingService {
         return os.toByteArray();
     }
 
-    public String generateReceiptHtmlFromTemplate(String eventName, String eventDate, String totalGuest,
-            String amount, String mobileNo) {
+    public String generateReceiptHtmlFromTemplate(EventRegDetails booking, EventMaster event,
+            EventTimeSlot timeSlot) {
 
         Context context = new Context();
-        context.setVariable("eventName", eventName);
-        context.setVariable("eventDate", eventDate);
-        context.setVariable("totalGuest", totalGuest);
-        context.setVariable("amount", amount);
-        context.setVariable("mobileNo", mobileNo);
+        context.setVariable("booking", booking);
+        context.setVariable("event", event);
+        context.setVariable("timeSlot", timeSlot);
 
         return templateEngine.process("user/receipt-pdf", context);
     }
@@ -292,6 +290,22 @@ public class BookingService {
                     return reg;
                 }
             }
+        }
+        return null;
+    }
+
+    public EventTimeSlot getBookingTimeSlot(String orderId) {
+        try {
+            EventOrderLog log = eventOrderLogRepository.findByOrderId(orderId);
+            if (log != null && log.getOrderInfo() != null) {
+                org.json.JSONObject json = new org.json.JSONObject(log.getOrderInfo());
+                if (json.has("time_slot_id")) {
+                    int timeSlotId = json.getInt("time_slot_id");
+                    return eventTimeSlotRepository.findById(timeSlotId).orElse(null);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching time slot for order " + orderId + ": " + e.getMessage());
         }
         return null;
     }

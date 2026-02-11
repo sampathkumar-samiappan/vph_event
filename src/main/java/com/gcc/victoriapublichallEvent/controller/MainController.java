@@ -95,6 +95,10 @@ public class MainController {
                 // Time Slot info is not directly available from booking anymore
                 EventMaster event = bookingService.getEventById(booking.getEventId());
                 model.addAttribute("event", event);
+
+                // Fetch Time Slot using the new service method
+                EventTimeSlot timeSlot = bookingService.getBookingTimeSlot(orderId);
+                model.addAttribute("timeSlot", timeSlot); // Add to model
             }
         } else {
             System.err.println("Booking NOT found for OrderID: " + orderId);

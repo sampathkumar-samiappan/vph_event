@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gcc.victoriapublichallEvent.constants.AppConstants;
 import com.gcc.victoriapublichallEvent.entity.EventMaster;
 import com.gcc.victoriapublichallEvent.entity.EventRegDetails;
+import com.gcc.victoriapublichallEvent.entity.EventTimeSlot;
 import com.gcc.victoriapublichallEvent.service.BookingService;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
@@ -168,18 +169,10 @@ public class BookingController {
         }
 
         EventMaster event = bookingService.getEventById(booking.getEventId());
-
-        String eventName = (event != null) ? event.getEventName() : "-";
-        String eventDate = (event != null) ? event.getEventDate() : "-";
-
-        String totalGuest = (booking.getNoOfPeople() != null) ? booking.getNoOfPeople().toString() : "0";
-        String amount = (booking.getTotalAmount() != null) ? booking.getTotalAmount().toString() : "0";
-
-        String mobileNo = (booking.getMobNo() != null) ? booking.getMobNo() : "-";
+        EventTimeSlot timeSlot = bookingService.getBookingTimeSlot(orderId);
 
         // ✅ Thymeleaf template HTML generate pannrom
-        String html = bookingService.generateReceiptHtmlFromTemplate(eventName, eventDate, totalGuest, amount,
-                mobileNo);
+        String html = bookingService.generateReceiptHtmlFromTemplate(booking, event, timeSlot);
 
         byte[] pdfBytes = bookingService.generateReceiptPdfFromHtml(html);
 

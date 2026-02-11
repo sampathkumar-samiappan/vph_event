@@ -392,78 +392,76 @@
                 <span class="page-title">Book ticket</span>
             </div>
 
-            <!-- Event Card (Reused Design) -->
-            <div class="event-card" th:if="${event != null}">
-                <div class="event-img-container">
-                    <img th:src="@{${event.eventImageUrl}}" class="event-img" alt="Event Image"
-                        onerror="this.src='/images/image_townhall.jpg'">
-                </div>
-                <div class="event-details">
-                    <h3 class="event-title" th:text="${event.eventName}">Event Name</h3>
-                    <p class="event-desc" th:text="${event.eventDiscription}">Short description...</p>
-                    <div class="event-meta">
-                        <i class="fa-regular fa-calendar" aria-hidden="true" style="margin-right: 8px;"></i>
-                        <span
-                            th:text="${#strings.substring(event.eventDate, 8, 10) + '-' + #strings.substring(event.eventDate, 5, 7) + '-' + #strings.substring(event.eventDate, 0, 4)}">Date</span>
-                        <span th:if="${timeSlot != null}" th:text="' | ' + ${timeSlot.eventTiming}"> | Time</span>
-                        <span style="margin-left:auto; font-size:20px; font-weight:800;" th:if="${booking != null}"
-                            th:text="'₹ ' + ${booking.totalAmount} + '/-'">₹ 500/-</span>
-                    </div>
-                </div>
-            </div>
-
+            <!-- Success Section -->
             <div class="booking-success" th:if="${booking != null}" id="bookingSuccess">
 
-                <!-- Receipt Header (Visible on screen and print) -->
-                <div id="receiptHeader" style="text-align: center; margin-bottom: 20px;">
-                    <h2 class="success-title" style="margin-bottom: 5px;">Booking Confirmed!</h2>
-                    <p class="success-sub" style="margin-bottom: 20px;">Your ticket has been booked successfully.</p>
+                <div class="success-card" style="text-align: center;">
+
+                    <img src="https://gccservices.in/victoriapublichall/images/VPH-logo_main-EN%201.png" alt="VPH Logo"
+                        style="width: 60px; height: 60px; object-fit: contain; margin-bottom: 10px;">
+                    <h3
+                        style="font-family: 'Playfair Display', serif; font-size: 18px; color: #3B1E14; margin-bottom: 20px;">
+                        Victoria Public Hall Event</h3>
+
+                    <h2 class="success-title" style="color: #053B50; margin-bottom: 30px;">Booking Completed</h2>
+
+                    <h4
+                        style="color: #053B50; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 20px; text-decoration: underline;">
+                        Booking Details</h4>
 
                     <div
-                        style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; width: 100%; max-width: 600px; margin: 0 auto 20px auto;">
-                        <h1 style="font-size: 24px; color: #3B1E14; margin: 0;">Victoria Public Hall</h1>
-                        <p style="font-size: 14px; color: #666; margin-top: 5px;">Event Booking Receipt</p>
-                    </div>
-                </div>
+                        style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; text-align: left; margin-bottom: 20px;">
 
-                <div id="receiptDiv" class="success-card"
-                    style="padding: 0; background: transparent; box-shadow: none;">
-                    <table class="success-table"
-                        style="width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0 auto; max-width: 600px;">
-                        <tbody>
-                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Event Name</td>
-                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #000;"
-                                    th:text="${event != null ? event.eventName : '-'}">Event Name</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Visiting on</td>
-                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #000;"
-                                    th:text="${event != null ? #strings.substring(event.eventDate, 8, 10) + '-' + #strings.substring(event.eventDate, 5, 7) + '-' + #strings.substring(event.eventDate, 0, 4) : '-'}">
-                                    29 Jan 2026</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Mobile Number</td>
-                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #000;"
-                                    th:text="${booking != null ? booking.mobNo : '-'}">9876543210</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Total Guest(s)</td>
-                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #000;"
-                                    th:text="${booking != null ? booking.noOfPeople : '0'}">06</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Payment Status</td>
-                                <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #00C853;">
-                                    SUCCESS</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 15px 20px; color: #666; font-weight: 500;">Amount Paid</td>
-                                <td style="padding: 15px 20px; text-align: right; font-weight: 800; color: #053B50; font-size: 18px;"
-                                    th:text="${booking != null ? '₹ ' + booking.totalAmount + '/-' : '-'}">₹3000/-</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        <!-- Row 1 -->
+                        <div>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">Mobile No:</p>
+                            <p style="font-size: 14px; font-weight: 600; color: #000;" th:text="${booking.mobNo}">
+                                9894935693</p>
+                        </div>
+                        <div>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">Event Name:</p>
+                            <p style="font-size: 14px; font-weight: 600; color: #000;"
+                                th:text="${event != null ? event.eventName : '-'}">cultural</p>
+                        </div>
+                        <div>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">Event Date:</p>
+                            <p style="font-size: 14px; font-weight: 600; color: #000;"
+                                th:text="${event != null ? #strings.substring(event.eventDate, 8, 10) + '-' + #strings.substring(event.eventDate, 5, 7) + '-' + #strings.substring(event.eventDate, 0, 4) : '-'}">
+                                09-02-2026</p>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">Event Timing:</p>
+                            <p style="font-size: 14px; font-weight: 600; color: #000;"
+                                th:text="${timeSlot != null ? timeSlot.eventTiming : '-'}">07:00 AM - 08:30 AM</p>
+                        </div>
+                        <div>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">Booking Date:</p>
+                            <p style="font-size: 14px; font-weight: 600; color: #000;"
+                                th:text="${#temporals.format(booking.cdate, 'dd-MM-yyyy')}">11-02-2026</p>
+                        </div>
+                        <div>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">Total People:</p>
+                            <p style="font-size: 14px; font-weight: 600; color: #000;" th:text="${booking.noOfPeople}">2
+                            </p>
+                        </div>
+
+                        <!-- Row 3 -->
+                        <div>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">Total Amount:</p>
+                            <p style="font-size: 14px; font-weight: 600; color: #000;"
+                                th:text="'₹ ' + ${booking.totalAmount}">₹ 60.0</p>
+                        </div>
+                        <!-- <div>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">Reference Id:</p>
+                            <p style="font-size: 14px; font-weight: 600; color: #000;" th:text="${booking.refId}">
+                                2026021118</p>
+                        </div> -->
+                        <!-- Empty cell for alignment if needed -->
+                        <div></div>
+                    </div>
+
                 </div>
 
                 <div class="no-print"
