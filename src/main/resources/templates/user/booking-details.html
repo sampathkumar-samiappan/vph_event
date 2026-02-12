@@ -412,10 +412,10 @@
                 <!-- OTP Section -->
                 <div class="otp-section" id="otpSection" style="display: none;">
                     <label class="form-label" for="otpInput">Enter OTP</label>
-                    <input type="number" id="otpInput" class="otp-input" placeholder="1234" maxlength="6">
+                    <input type="text" id="otpInput" class="otp-input" placeholder="12345" maxlength="5">
                     <div
                         style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:14px; color:#666;">
-                        <span id="otpTimer">00:00</span>
+                        <span id="otpTimer"></span>
                         <a href="#" id="resendLink" style="color:#0478D0; pointer-events:none; opacity:0.5;">Resend
                             OTP</a>
                     </div>
@@ -568,10 +568,17 @@
             });
         }
 
+        // OTP Input Restriction
+        if (otpInput) {
+            otpInput.addEventListener('input', function () {
+                this.value = this.value.replace(/\D/g, '').slice(0, 5);
+            });
+        }
+
         // Verify OTP
         verifyOtpBtn.addEventListener('click', function () {
             const otp = otpInput.value.trim();
-            if (otp.length >= 4 && otp.length <= 6) {
+            if (otp.length === 5) {
                 $.ajax({
                     type: "GET",
                     url: "/victoriapublichallevent/otpapi/verifyOTP",
@@ -592,7 +599,7 @@
                     }
                 });
             } else {
-                Swal.fire('Please enter valid OTP (4-6 digits)');
+                Swal.fire('Please enter valid OTP (5 digits)');
             }
         });
 

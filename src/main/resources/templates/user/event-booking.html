@@ -951,7 +951,7 @@
 
                     <div id="otpSection" class="otp-section" style="display: none;">
                         <label class="form-label" for="otpInput">Enter OTP</label>
-                        <input type="text" id="otpInput" class="otp-input" placeholder="" maxlength="6">
+                        <input type="text" id="otpInput" class="otp-input" placeholder="" maxlength="5">
                         <button type="button" class="submit-btn" id="submitOtpBtn">Submit</button>
                     </div>
                 </form>
@@ -1451,15 +1451,15 @@
         }
 
         otpInput.addEventListener('input', function () {
-            // Allow only digits
-            this.value = this.value.replace(/\D/g, '');
+            // Allow only digits and max 5 chars
+            this.value = this.value.replace(/\D/g, '').slice(0, 5);
         });
 
         submitOtpBtn.addEventListener('click', function () {
             const otp = otpInput.value.trim();
             const inputVal = contactInput.value.trim();
 
-            if (otp.length > 3) {
+            if (otp.length === 5) {
                 $.ajax({
                     type: "GET",
                     url: "/victoriapublichallevent/otpapi/verifyOTP",
@@ -1608,7 +1608,7 @@
                     }
                 });
             } else {
-                Swal.fire('Please enter valid OTP');
+                Swal.fire('Please enter valid OTP (5 digits)');
             }
         });
 
