@@ -12,124 +12,180 @@
         body {
             margin: 0;
             padding: 0;
-            /* height: 100%; */
+            font-family: Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         .page-bg {
             width: 100%;
             height: 297mm;
-            padding: 50px;
+            padding: 40px;
             box-sizing: border-box;
-            /* 🔥 MAIN FIX */
-
+            background-color: #f6f3ef;
+            /* Fallback color */
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)),
+                linear-gradient(rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.82)),
                 url("images/vph-background_v1.jpg");
-
             background-repeat: no-repeat;
             background-position: center;
             background-size: cover;
-
-            overflow: hidden;
+            position: relative;
         }
 
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-
-        table {
+        .container {
             width: 100%;
-            border-collapse: collapse;
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        td {
-            padding: 15px 20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .title {
+            max-width: 700px;
+            margin: 0 auto;
             text-align: center;
-            font-size: 22px;
-            font-weight: 800;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: black;
             margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .success-title {
+            color: black;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            font-family: sans-serif;
+            text-align: center;
+        }
+
+        .section-title {
+            color: #053B50;
+            font-family: sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-decoration: underline;
+            text-align: center;
+        }
+
+        /* Card Container mimicking success-card */
+        .receipt-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 50px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        /* 3-Column Grid simulated with Table */
+        .info-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 20px 20px;
+            /* Simulate gap: 20px */
+            table-layout: fixed;
+            text-align: left;
+        }
+
+        .info-table td {
+            vertical-align: top;
+            padding: 0;
+            /* Reset padding, handled by border-spacing */
         }
 
         .label {
+            font-size: 12px;
             color: #666;
-            font-weight: 500;
+            margin-bottom: 4px;
+            display: block;
         }
 
         .value {
-            text-align: right;
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 600;
             color: #000;
-        }
-
-        .success {
-            color: #00C853;
-        }
-
-        .amount {
-            font-weight: 800;
-            color: #053B50;
-            font-size: 18px;
+            display: block;
+            word-wrap: break-word;
         }
     </style>
 </head>
 
 <body>
     <div class="page-bg">
+        <div class="container">
+            <div class="receipt-card">
+                <img src="https://gccservices.in/victoriapublichall/images/VPH-logo_main-EN%201.png" alt="VPH Logo"
+                    class="logo" />
+                <div class="header-title">Victoria Public Hall Event</div>
 
-        <div class="title">Victoria Public Hall - Booking Receipt</div>
+                <div class="success-title">Booking Receipt</div>
+                <div class="section-title">Booking Details</div>
 
-        <table>
-            <tbody>
-                <tr>
-                    <td class="label">Mobile No</td>
-                    <td class="value" th:text="${booking.mobNo}">-</td>
-                </tr>
-                <tr>
-                    <td class="label">Event Name</td>
-                    <td class="value" th:text="${event.eventName}">Event Name</td>
-                </tr>
-                <tr>
-                    <td class="label">Event Date</td>
-                    <td class="value"
-                        th:text="${event.eventDate != null and event.eventDate.length() >= 10 ? #strings.substring(event.eventDate, 8, 10) + '-' + #strings.substring(event.eventDate, 5, 7) + '-' + #strings.substring(event.eventDate, 0, 4) : event.eventDate}">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label">Event Timing</td>
-                    <td class="value" th:text="${timeSlot != null ? timeSlot.eventTiming : '-'}">07:00 AM - 08:30 AM
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label">Booking Date</td>
-                    <td class="value" th:text="${#temporals.format(booking.cdate, 'dd-MM-yyyy')}">11-02-2026</td>
-                </tr>
-                <tr>
-                    <td class="label">Total People</td>
-                    <td class="value" th:text="${booking.noOfPeople}">2</td>
-                </tr>
-                <tr>
-                    <td class="label">Total Amount</td>
-                    <td class="value" th:text="'RS:' + ${booking.totalAmount}">₹ 60.0</td>
-                </tr>
-                <tr>
-                    <!-- <td class="label">Reference Id</td>
-                    <td class="value" th:text="${booking.refId}">2026021118</td> -->
-                </tr>
-            </tbody>
-        </table>
+                <table class="info-table">
+                    <!-- Row 1 -->
+                    <tr>
+                        <td>
+                            <span class="label">Mobile No:</span>
+                            <span class="value" th:text="${booking.mobNo}"></span>
+                        </td>
+                        <td>
+                            <span class="label">Event Name:</span>
+                            <span class="value" th:text="${event != null ? event.eventName : '-'}"></span>
+                        </td>
+                        <td>
+                            <span class="label">Event Date:</span>
+                            <span class="value"
+                                th:text="${event != null ? #strings.substring(event.eventDate, 8, 10) + '-' + #strings.substring(event.eventDate, 5, 7) + '-' + #strings.substring(event.eventDate, 0, 4) : '-'}">
+                            </span>
+                        </td>
+                    </tr>
 
+                    <!-- Row 2 -->
+                    <tr>
+                        <td>
+                            <span class="label">Event Timing:</span>
+                            <span class="value" th:text="${timeSlot != null ? timeSlot.eventTiming : '-'}"></span>
+                        </td>
+                        <td>
+                            <span class="label">Booking Date:</span>
+                            <span class="value" th:text="${#temporals.format(booking.cdate, 'dd-MM-yyyy')}"></span>
+                        </td>
+                        <td>
+                            <span class="label">Total People:</span>
+                            <span class="value" th:text="${booking.noOfPeople}"></span>
+                        </td>
+                    </tr>
+
+                    <!-- Row 3 -->
+                    <tr>
+                        <td>
+                            <span class="label">Total Amount:</span>
+                            <span class="value" th:text="'RS:' + ${booking.totalAmount}"></span>
+                        </td>
+                        <!-- Empty cells to maintain grid structure if needed, or add more fields like Ref ID -->
+                        <!-- <td>
+                            <span class="label">Reference Id:</span>
+                            <span class="value" th:text="${booking.refId}">2026021118</span>
+                        </td> -->
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Footer / Disclaimer if needed -->
+            <!-- <div style="font-size: 10px; color: #999; margin-top: 30px;">
+                Computer generated receipt. No signature required.
+            </div> -->
+        </div>
     </div>
 </body>
 
